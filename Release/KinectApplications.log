@@ -1,0 +1,19 @@
+﻿2015/04/30 19:02:58 にビルドを開始しました。
+     1>ノード 2 上のプロジェクト "C:\Users\new user\documents\visual studio 2013\Projects\KinectApplications\KinectApplications\KinectApplications.vcxproj" (Build ターゲット)。
+     1>ClCompile:
+         C:\Program Files (x86)\Microsoft Visual Studio 12.0\VC\bin\CL.exe /c /Zi /nologo /W3 /WX- /sdl /O2 /Oi /Oy- /GL /D WIN32 /D NDEBUG /D _CONSOLE /D _LIB /D _UNICODE /D UNICODE /Gm- /EHsc /MD /GS /Gy /fp:precise /Zc:wchar_t /Zc:forScope /Fo"Release\\" /Fd"Release\vc120.pdb" /Gd /TP /analyze- /errorReport:prompt Source.cpp
+         Source.cpp
+     1>c:\users\new user\documents\visual studio 2013\projects\kinectapplications\kinectapplications\KinectV1Wrapper.h(45): warning C4244: '初期化中' : 'double' から 'int' への変換です。データが失われる可能性があります。
+     1>c:\users\new user\documents\visual studio 2013\projects\kinectapplications\kinectapplications\KinectV1Wrapper.h(68): warning C4244: '=' : 'double' から 'int' への変換です。データが失われる可能性があります。
+     1>c:\users\new user\documents\visual studio 2013\projects\kinectapplications\kinectapplications\KinectV1Wrapper.h(69): warning C4244: '=' : 'double' から 'int' への変換です。データが失われる可能性があります。
+       Link:
+         C:\Program Files (x86)\Microsoft Visual Studio 12.0\VC\bin\link.exe /ERRORREPORT:PROMPT /OUT:"C:\Users\new user\documents\visual studio 2013\Projects\KinectApplications\Release\KinectTestConsole.exe" /INCREMENTAL:NO /NOLOGO kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib /MANIFEST /MANIFESTUAC:"level='asInvoker' uiAccess='false'" /manifest:embed /DEBUG /PDB:"C:\Users\new user\documents\visual studio 2013\Projects\KinectApplications\Release\KinectTestConsole.pdb" /SUBSYSTEM:CONSOLE /OPT:REF /OPT:ICF /LTCG /TLBID:1 /DYNAMICBASE /NXCOMPAT /IMPLIB:"C:\Users\new user\documents\visual studio 2013\Projects\KinectApplications\Release\KinectTestConsole.lib" /MACHINE:X86 /SAFESEH Release\Source.obj
+         コード生成しています。
+     1>c:\users\new user\documents\visual studio 2013\projects\kinectapplications\kinectapplications\kinectv1wrapper.h(147): warning C4715: 'KinectV1::coodinate' : 値を返さないコントロール パスがあります。
+         コード生成が終了しました。
+         KinectApplications.vcxproj -> C:\Users\new user\documents\visual studio 2013\Projects\KinectApplications\Release\KinectTestConsole.exe
+     1>プロジェクト "C:\Users\new user\documents\visual studio 2013\Projects\KinectApplications\KinectApplications\KinectApplications.vcxproj" (Build ターゲット) のビルドが完了しました。
+
+ビルドに成功しました。
+
+経過時間 00:00:02.63
