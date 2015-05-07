@@ -445,8 +445,7 @@ public:
 	}
 	void cvtDepth2Gray(cv::Mat& depthMat, cv::Mat& grayMat)
 	{
-		Mat tempMat = cv::Mat::zeros(depthMat.size(), CV_8UC1);
-		//cv::cvtColor(tempMat, tempMat, CV_BGR2GRAY);
+		Mat tempMat = cv::Mat::zeros(depthMat.size(), CV_8UC3);
 		for (int y = 0; y < depthMat.rows; y++){
 			for (int x = 0; x < depthMat.cols; x++){
 				int iv;
@@ -460,7 +459,9 @@ public:
 					if (iv > 255) iv = 255;
 					else if (iv < 0) iv = 0;
 				}
-				tempMat.at<unsigned char>(y, x) = 255 - iv;
+				matB(tempMat, x, y) = 255 - iv;
+				matG(tempMat, x, y) = 255 - iv;
+				matR(tempMat, x, y) = 255 - iv;
 			}
 		}
 		grayMat = tempMat.clone();
@@ -520,14 +521,13 @@ public:
 				cv::Vec3d light = cv::Vec3d(0, 0, 1);	//	ŒõŒ¹ = Ž‹“_
 				double diffuse = n.dot(light) / cv::norm(n) / cv::norm(light);	//	”½ŽËŒõ‚Ì‹­‚³
 				//	”½ŽË—¦‚¾‚¯Œõ‚ð—Ž‚·
-				matB(tempMat, x, y) = (uchar)(matB(tempMat, x, y) * diffuse);
-				matG(tempMat, x, y) = (uchar)(matG(tempMat, x, y) * diffuse);
-				matR(tempMat, x, y) = (uchar)(matR(tempMat, x, y) * diffuse);
+				matB(tempMat, x, y) = (uchar)((double)matB(tempMat, x, y) * diffuse);
+				matG(tempMat, x, y) = (uchar)((double)matG(tempMat, x, y) * diffuse);
+				matR(tempMat, x, y) = (uchar)((double)matR(tempMat, x, y) * diffuse);
 			}
 		}
 		cv::medianBlur(tempMat, tempMat, 3);
-		if (srcMat.channels() == CV_8UC1) cvtColor(tempMat, dstMat, CV_BGR2GRAY);
-		else dstMat = tempMat.clone();
+		dstMat = tempMat.clone();
 	}
 	void releaseFrames()
 	{

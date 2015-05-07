@@ -22,19 +22,18 @@ int main(void)
 		kSensor.getColorFrame(colorMat);
 		// Depthカメラからフレームを取得
 		cv::Mat depthMat, playerMask, grayMat, shadeMat;
-		kSensor.getDepthFrame(depthMat, playerMask);
+		kSensor.getDepthFrame(depthMat);
 		kSensor.cvtDepth2Gray(depthMat, grayMat);
-		kSensor.depthShading(depthMat, grayMat, shadeMat);
-		//cvtColor(shadeMat, shadeMat, CV_BGR2GRAY);
+		kSensor.depthShading(depthMat, grayMat, shadeMat);	//	実装上の問題でcvtDepth2Gray()は3ch画像
 		// 表示
 		cv::imshow("Color", colorMat);
 		cv::imshow("Depth", shadeMat);
 
-
 		////	特徴点抽出
-		//detector->detect(grayMat, keypoint);
+		//Mat featureImg = colorMat.clone();
+		//cvtColor(featureImg, featureImg, CV_BGR2GRAY);
+		//detector->detect(featureImg, keypoint);
 
-		//Mat featureImg = grayMat.clone();
 		//cv::drawKeypoints(featureImg, keypoint, featureImg, Scalar(0, 0, 255));
 
 		//cv::imshow("Feature", featureImg);
