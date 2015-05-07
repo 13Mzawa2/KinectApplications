@@ -26,7 +26,6 @@
 #define KINECT_CAM_HEIGHT		480
 #define KINECT_DEPTH_WIDTH		320
 #define KINECT_DEPTH_HEIGHT		240
-#define KINECT_EVENTS			3					//	RGB, Depth, Sckelton ‚È‚Ç
 #define KINECT_PLAYER_MAX		NUI_SKELETON_COUNT
 
 #define REAL_DEPTH(pix)			(pix & 0xfff8) >> 3
