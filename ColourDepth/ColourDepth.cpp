@@ -5,8 +5,7 @@ int main(void)
 	//	Kinect v1の簡易使用クラス
 	KinectV1 kSensor(
 		NUI_INITIALIZE_FLAG_USES_COLOR |
-		NUI_INITIALIZE_FLAG_USES_DEPTH_AND_PLAYER_INDEX |
-		NUI_INITIALIZE_FLAG_USES_SKELETON);
+		NUI_INITIALIZE_FLAG_USES_DEPTH);
 
 	while (1){
 		// フレームの更新待ち
@@ -16,21 +15,14 @@ int main(void)
 		cv::Mat colorMat;
 		kSensor.getColorFrame(colorMat);
 		// Depthカメラからフレームを取得
-		cv::Mat depthMat, grayMat, playerMask, shadeMat;
-		kSensor.getDepthFrame(depthMat, playerMask);
+		cv::Mat depthMat, grayMat;
+		kSensor.getDepthFrame(depthMat);
 		kSensor.cvtDepth2Color(depthMat, grayMat);
-		kSensor.depthShading(depthMat, grayMat, shadeMat);
-		playerMask = playerMask / 2;
-		//	骨格データを取得
-		std::vector<cv::Point> joints[KINECT_PLAYER_MAX];
-		kSensor.getSkeletonJoints(joints);
-		kSensor.drawSkeleton(playerMask, joints);
+		cv::GaussianBlur(grayMat, grayMat, cv::Size(5, 5), 1.0, 1.0);
 
 		// 表示
 		cv::imshow("Color", colorMat);
-		//cv::imshow("Depth", grayMat);
-		cv::imshow("Player", playerMask);
-		cv::imshow("Shade", shadeMat);
+		cv::imshow("Depth", grayMat);
 
 		// フレームの解放
 		kSensor.releaseFrames();
