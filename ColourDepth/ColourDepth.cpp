@@ -16,10 +16,12 @@ int main(void)
 		cv::Mat colorMat;
 		kSensor.getColorFrame(colorMat);
 		// Depthカメラからフレームを取得
-		cv::Mat depthMat, grayMat, playerMask, shadeMat;
+		cv::Mat depthMat, grayMat,colorDepth, playerMask, shadeMat;
 		kSensor.getDepthFrame(depthMat, playerMask);
-		kSensor.cvtDepth2Color(depthMat, grayMat);
-		kSensor.depthShading(depthMat, grayMat, shadeMat);
+		kSensor.cvtDepth2Gray(depthMat, grayMat);				//	実装上の問題でGRAY画像でも3チャンネルで出力される
+		kSensor.cvtDepth2Color(depthMat, colorDepth);
+		kSensor.depthShading(depthMat, colorDepth, shadeMat);
+		kSensor.depthShading(depthMat, grayMat, shadeMat);		//	ここに1チャンネルのgrayMatを入れてはならない
 		playerMask = playerMask / 2;
 		//	骨格データを取得
 		std::vector<cv::Point> joints[KINECT_PLAYER_MAX];
@@ -28,7 +30,9 @@ int main(void)
 
 		// 表示
 		cv::imshow("Color", colorMat);
-		//cv::imshow("Depth", grayMat);
+		cv::imshow("DepthGray", grayMat);
+		cv::imshow("DepthColor", colorDepth);
+
 		cv::imshow("Player", playerMask);
 		cv::imshow("Shade", shadeMat);
 

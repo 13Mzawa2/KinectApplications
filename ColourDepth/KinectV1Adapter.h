@@ -445,7 +445,7 @@ public:
 	}
 	void cvtDepth2Gray(cv::Mat& depthMat, cv::Mat& grayMat)
 	{
-		grayMat = cv::Mat::zeros(height, width, CV_8UC1);
+		grayMat = cv::Mat::zeros(height, width, CV_8UC3);
 		for (int y = 0; y < height; y++){
 			for (int x = 0; x < width; x++){
 				int iv;
@@ -459,10 +459,11 @@ public:
 					if (iv > 255) iv = 255;
 					else if (iv < 0) iv = 0;
 				}
-				grayMat.at<unsigned short>(y, x) = iv;
+				matB(grayMat, x, y) = 255 - iv;
+				matG(grayMat, x, y) = 255 - iv;
+				matR(grayMat, x, y) = 255 - iv;
 			}
 		}
-		grayMat = ~grayMat;
 	}
 	void cvtDepth2Color(cv::Mat& depthMat, cv::Mat& colorMat)
 	{
