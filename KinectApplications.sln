@@ -9,6 +9,8 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "ColourDepth", "ColourDepth\
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "PointCloud", "PointCloud\PointCloud.vcxproj", "{9A0C4969-BBF7-4D21-B97E-151E13D41B06}"
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Transformations", "Transformations\Transformations.vcxproj", "{2CF7E1C7-4D74-418A-9B55-5353517AEED3}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Win32 = Debug|Win32
@@ -27,6 +29,10 @@ Global
 		{9A0C4969-BBF7-4D21-B97E-151E13D41B06}.Debug|Win32.Build.0 = Debug|Win32
 		{9A0C4969-BBF7-4D21-B97E-151E13D41B06}.Release|Win32.ActiveCfg = Release|Win32
 		{9A0C4969-BBF7-4D21-B97E-151E13D41B06}.Release|Win32.Build.0 = Release|Win32
+		{2CF7E1C7-4D74-418A-9B55-5353517AEED3}.Debug|Win32.ActiveCfg = Debug|Win32
+		{2CF7E1C7-4D74-418A-9B55-5353517AEED3}.Debug|Win32.Build.0 = Debug|Win32
+		{2CF7E1C7-4D74-418A-9B55-5353517AEED3}.Release|Win32.ActiveCfg = Release|Win32
+		{2CF7E1C7-4D74-418A-9B55-5353517AEED3}.Release|Win32.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
