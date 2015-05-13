@@ -53,11 +53,13 @@ public:
 	INuiFrameTexture* pColorFrameTexture;
 	NUI_LOCKED_RECT colorLockedRect;
 	INuiColorCameraSettings* pCameraSettings;		//	RGBカメラ設定
+	static const NUI_IMAGE_RESOLUTION imageResolution = NUI_IMAGE_RESOLUTION_640x480;
 
 	NUI_IMAGE_FRAME pDepthFrame;					//	デプス画像データ
 	INuiFrameTexture* pDepthFrameTexture;
 	NUI_LOCKED_RECT depthLockedRect;
 	NUI_DEPTH_IMAGE_PIXEL* pDepthPixel;
+	static const NUI_IMAGE_RESOLUTION depthResolution = NUI_IMAGE_RESOLUTION_320x240;
 
 	NUI_SKELETON_FRAME pSkeletonFrame;				//	スケルトンフレーム
 
@@ -68,8 +70,10 @@ public:
 	//	描画用数値データ
 	volatile int minDepthRange = 400;			//	near mode が有効の場合
 	volatile int maxDepthRange = 8000;			//	4000[mm]以降は精度が粗くなる
-	volatile int width = 0;
-	volatile int height = 0;
+	int imageWidth = 0;
+	int imageHeight = 0;
+	int depthWidth = 0;
+	int depthHeight = 0;
 
 	//	有効化フラグ
 	volatile bool useColorFrame = false;
@@ -127,7 +131,6 @@ public:
 		beginDepthStream();
 		beginSkeletonStream();
 
-		getResolution();
 		coordinate();
 
 		return 0;
@@ -139,7 +142,7 @@ public:
 		hColorEvent = CreateEvent(nullptr, true, false, nullptr);
 		hResult = pSensor->NuiImageStreamOpen(
 			NUI_IMAGE_TYPE_COLOR,
-			NUI_IMAGE_RESOLUTION_640x480,
+			imageResolution,
 			0,
 			2,
 			hColorEvent,
@@ -149,7 +152,7 @@ public:
 			std::cerr << "Error : NuiImageStreamOpen( COLOR )" << std::endl;
 			return -1;
 		}
-
+		getResolution(imageResolution, imageWidth, imageHeight);
 		hEvents.push_back(hColorEvent);
 
 		return 0;
@@ -161,7 +164,7 @@ public:
 		hDepthEvent = CreateEvent(nullptr, true, false, nullptr);
 		hResult = pSensor->NuiImageStreamOpen(
 			(usePlayerFrame)? NUI_IMAGE_TYPE_DEPTH_AND_PLAYER_INDEX : NUI_IMAGE_TYPE_DEPTH,
-			NUI_IMAGE_RESOLUTION_640x480,
+			depthResolution,
 			0,
 			2,
 			hDepthEvent,
@@ -170,7 +173,7 @@ public:
 			std::cerr << "Error : NuiImageStreamOpen( DEPTH )" << std::endl;
 			return -1;
 		}
-
+		getResolution(depthResolution, depthWidth, depthHeight);
 		hEvents.push_back(hDepthEvent);
 
 		return 0;
@@ -192,11 +195,11 @@ public:
 		hEvents.push_back(hSkeletonEvent);
 	}
 	// 解像度の取得
-	void getResolution()
+	void getResolution(NUI_IMAGE_RESOLUTION resolution, int &width, int &height)
 	{
 		unsigned long refWidth = 0;
 		unsigned long refHeight = 0;
-		NuiImageResolutionToSize(NUI_IMAGE_RESOLUTION_640x480, refWidth, refHeight);
+		NuiImageResolutionToSize(resolution, refWidth, refHeight);
 		width = static_cast<int>(refWidth);
 		height = static_cast<int>(refHeight);
 	}
@@ -208,7 +211,7 @@ public:
 			std::cerr << "Error : NuiGetCoordinateMapper" << std::endl;
 			return -1;
 		}
-		pColorPoint = std::vector<NUI_COLOR_IMAGE_POINT>(width * height);
+		pColorPoint = std::vector<NUI_COLOR_IMAGE_POINT>(imageWidth * imageHeight);
 	}
 	void waitFrames()
 	{
@@ -232,7 +235,7 @@ public:
 		pColorFrameTexture->LockRect(0, &colorLockedRect, nullptr, 0);
 
 		colorMat = cv::Mat(
-			height, width,
+			imageHeight, imageWidth,
 			CV_8UC4,
 			reinterpret_cast<unsigned char*>(colorLockedRect.pBits));	//	チャンネル数はb,g,r,予約の4個
 
@@ -256,28 +259,36 @@ public:
 		pDepthFrameTexture->LockRect(0, &depthLockedRect, nullptr, 0);
 
 		//	Depth画像をカラー画像に位置合わせする
-		depthMat = cv::Mat::zeros(height, width, CV_16UC1);
-		playerMask = cv::Mat::zeros(height, width, CV_8UC3);
+		depthMat = cv::Mat::zeros(depthHeight, depthWidth, CV_16UC1);
+		playerMask = cv::Mat::zeros(depthHeight, depthWidth, CV_8UC3);
 		pDepthPixel = reinterpret_cast<NUI_DEPTH_IMAGE_PIXEL*>(depthLockedRect.pBits);
-		pCoordinateMapper->MapDepthFrameToColorFrame(
-			NUI_IMAGE_RESOLUTION_640x480,
-			width * height,
-			pDepthPixel,
-			NUI_IMAGE_TYPE_COLOR,
-			NUI_IMAGE_RESOLUTION_640x480,
-			width * height,
-			&pColorPoint[0]);
+
 
 		//	DepthセンサーのrawデータからデプスマップとプレイヤーIDを切り分ける
-		for (int y = 0; y < height; y++)
+		for (int y = 0; y < depthHeight; y++)
 		{
-			for (int x = 0; x < width; x++)
+			for (int x = 0; x < depthWidth; x++)
 			{
-				unsigned int index = y * width + x;
-				depthMat.at<unsigned short>(pColorPoint[index].y, pColorPoint[index].x) = pDepthPixel[index].depth;
-				playerMask.at<cv::Vec3b>(pColorPoint[index].y, pColorPoint[index].x) = color[pDepthPixel[index].playerIndex];
+				unsigned int index = y * depthWidth + x;
+				depthMat.at<unsigned short>(y, x) = pDepthPixel[index].depth;
+				playerMask.at<cv::Vec3b>(y, x) = color[pDepthPixel[index].playerIndex];
 			}
 		}
+
+		//pCoordinateMapper->MapDepthFrameToColorFrame(
+		//	depthResolution, depthWidth * depthHeight, pDepthPixel,
+		//	NUI_IMAGE_TYPE_COLOR, imageResolution, imageWidth * imageHeight, &pColorPoint[0]);
+
+		////	DepthセンサーのrawデータからデプスマップとプレイヤーIDを切り分ける
+		//for (int y = 0; y < depthHeight; y++)
+		//{
+		//	for (int x = 0; x < depthWidth; x++)
+		//	{
+		//		unsigned int index = y * depthWidth + x;
+		//		depthMat.at<unsigned short>(pColorPoint[index].y, pColorPoint[index].x) = pDepthPixel[index].depth;
+		//		playerMask.at<cv::Vec3b>(pColorPoint[index].y, pColorPoint[index].x) = color[pDepthPixel[index].playerIndex];
+		//	}
+		//}
 
 		//cv::medianBlur(depthMat, depthMat, 3);
 		return 0;
@@ -304,7 +315,7 @@ public:
 					pCoordinateMapper->MapSkeletonPointToColorPoint(
 						&skeletonData.SkeletonPositions[position],
 						NUI_IMAGE_TYPE_COLOR,
-						NUI_IMAGE_RESOLUTION_640x480,
+						imageResolution,
 						&colorPoint);
 					joints[count].push_back(Point(colorPoint.x, colorPoint.y));
 				}
@@ -315,12 +326,12 @@ public:
 				pCoordinateMapper->MapSkeletonPointToColorPoint(
 					&skeletonData.SkeletonPositions[NUI_SKELETON_POSITION_HIP_CENTER],
 					NUI_IMAGE_TYPE_COLOR,
-					NUI_IMAGE_RESOLUTION_640x480,
+					imageResolution,
 					&colorPoint);
 				if ((colorPoint.x >= 0)
-					&& (colorPoint.x < width)
+					&& (colorPoint.x < imageWidth)
 					&& (colorPoint.y >= 0)
-					&& (colorPoint.y < height))
+					&& (colorPoint.y < imageHeight))
 				{
 					joints[count].push_back(Point(colorPoint.x, colorPoint.y));
 				}
@@ -329,7 +340,7 @@ public:
 	}
 	int drawSkeleton(cv::Mat& dstMat, std::vector<cv::Point> joints[NUI_SKELETON_COUNT])
 	{
-		if (dstMat.rows == 0 && dstMat.cols == 0) dstMat = cv::Mat::zeros(height, width, CV_8UC3);
+		if (dstMat.rows == 0 && dstMat.cols == 0) dstMat = cv::Mat::zeros(imageHeight, imageWidth, CV_8UC3);
 		//	Skeletonの各座標を描画
 		NUI_COLOR_IMAGE_POINT colorPoint;			//	スケルトンを構成する座標
 		for (int count = 0; count < NUI_SKELETON_COUNT; count++)
@@ -468,10 +479,10 @@ public:
 	}
 	void cvtDepth2Color(cv::Mat& depthMat, cv::Mat& colorMat)
 	{
-		Mat tempMat = cv::Mat::zeros(height, width, CV_8UC3);
+		Mat tempMat = cv::Mat::zeros(depthMat.size(), CV_8UC3);
 		cv::cvtColor(tempMat, tempMat, CV_BGR2HSV);
-		for (int y = 0; y < height; y++){
-			for (int x = 0; x < width; x++){
+		for (int y = 0; y < tempMat.rows; y++){
+			for (int x = 0; x < tempMat.cols; x++){
 				int iv;
 				if ((depthMat.at<unsigned short>(y, x) <= 0) || (depthMat.at<unsigned short>(y, x) > maxDepthRange))
 				{
@@ -500,7 +511,7 @@ public:
 			for (int x = 0; x < depthMat.cols; x++){
 				//	隣接3pixが範囲外の場合は真っ暗にする
 				unsigned short z = depthMat.at<unsigned short>(y, x);
-				if ((y >= height) || (x >= width) ||
+				if ((y >= depthMat.rows) || (x >= depthMat.cols) ||
 					(z < 400) || (z > 8000))
 				{
 					matB(tempMat, x, y) = 0;
