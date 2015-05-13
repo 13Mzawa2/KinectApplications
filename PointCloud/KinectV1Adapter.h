@@ -7,7 +7,7 @@
 #include <Windows.h>
 #include <NuiApi.h>
 #include <NuiSensor.h>
-#include "OpenCVAdapter.h"
+#include "OpenCVAdapter.hpp"
 
 //-------------------------------------------------
 //			Libraries
@@ -59,12 +59,11 @@ public:
 	INuiFrameTexture* pDepthFrameTexture;
 	NUI_LOCKED_RECT depthLockedRect;
 	NUI_DEPTH_IMAGE_PIXEL* pDepthPixel;
-	static const NUI_IMAGE_RESOLUTION depthResolution = NUI_IMAGE_RESOLUTION_320x240;
+	static const NUI_IMAGE_RESOLUTION depthResolution = NUI_IMAGE_RESOLUTION_640x480;
 
 	NUI_SKELETON_FRAME pSkeletonFrame;				//	スケルトンフレーム
 
 	INuiCoordinateMapper* pCoordinateMapper;
-	std::vector<NUI_COLOR_IMAGE_POINT> pColorPoint;
 	BOOL nearMode = true;
 
 	//	描画用数値データ
@@ -211,7 +210,6 @@ public:
 			std::cerr << "Error : NuiGetCoordinateMapper" << std::endl;
 			return -1;
 		}
-		pColorPoint = std::vector<NUI_COLOR_IMAGE_POINT>(imageWidth * imageHeight);
 	}
 	void waitFrames()
 	{
@@ -275,23 +273,42 @@ public:
 			}
 		}
 
-		//pCoordinateMapper->MapDepthFrameToColorFrame(
-		//	depthResolution, depthWidth * depthHeight, pDepthPixel,
-		//	NUI_IMAGE_TYPE_COLOR, imageResolution, imageWidth * imageHeight, &pColorPoint[0]);
-
-		////	DepthセンサーのrawデータからデプスマップとプレイヤーIDを切り分ける
-		//for (int y = 0; y < depthHeight; y++)
-		//{
-		//	for (int x = 0; x < depthWidth; x++)
-		//	{
-		//		unsigned int index = y * depthWidth + x;
-		//		depthMat.at<unsigned short>(pColorPoint[index].y, pColorPoint[index].x) = pDepthPixel[index].depth;
-		//		playerMask.at<cv::Vec3b>(pColorPoint[index].y, pColorPoint[index].x) = color[pDepthPixel[index].playerIndex];
-		//	}
-		//}
-
 		//cv::medianBlur(depthMat, depthMat, 3);
 		return 0;
+	}
+	int getDepthFrameCoordinated(cv::Mat &depthMat, cv::Mat &playerMask = cv::Mat())
+	{
+		// Depthカメラからフレームを取得
+		hResult = pSensor->NuiImageStreamGetNextFrame(hDepthHandle, 0, &pDepthFrame);
+		if (FAILED(hResult)){
+			std::cerr << "Error : NuiImageStreamGetNextFrame( DEPTH )" << std::endl;
+			return -1;
+		}
+		// Depth画像データのロックと取得
+		pDepthFrameTexture = nullptr;
+		pSensor->NuiImageFrameGetDepthImagePixelFrameTexture(
+			hDepthHandle,
+			&pDepthFrame,
+			&nearMode,
+			&pDepthFrameTexture);
+		pDepthFrameTexture->LockRect(0, &depthLockedRect, nullptr, 0);
+
+		//	Depthマップをカラー画像にマッピング
+		std::vector<NUI_COLOR_IMAGE_POINT> pColorPoint = std::vector<NUI_COLOR_IMAGE_POINT>(imageWidth * imageHeight);
+		pCoordinateMapper->MapDepthFrameToColorFrame(
+			depthResolution, depthWidth * depthHeight, pDepthPixel,
+			NUI_IMAGE_TYPE_COLOR, imageResolution, imageWidth * imageHeight, &pColorPoint[0]);
+
+		//	DepthセンサーのrawデータからデプスマップとプレイヤーIDを切り分ける
+		for (int y = 0; y < depthHeight; y++)
+		{
+			for (int x = 0; x < depthWidth; x++)
+			{
+				unsigned int index = y * depthWidth + x;
+				depthMat.at<unsigned short>(pColorPoint[index].y, pColorPoint[index].x) = pDepthPixel[index].depth;
+				playerMask.at<cv::Vec3b>(pColorPoint[index].y, pColorPoint[index].x) = color[pDepthPixel[index].playerIndex];
+			}
+		}
 	}
 	int getSkeletonJoints(std::vector<cv::Point> joints[NUI_SKELETON_COUNT])
 	{
@@ -539,6 +556,53 @@ public:
 		}
 		cv::medianBlur(tempMat, tempMat, 3);
 		dstMat = tempMat.clone();
+	}
+	void cvtDepth2Cloud(Mat &depthMat, Mat &cloudMat)
+	{
+		//Mat tempMat = Mat(depthMat.size(), CV_32FC3);
+		cloudMat = Mat(1, depthMat.cols * depthMat.rows, CV_32FC3);
+		Point3f *point = cloudMat.ptr<cv::Point3f>();					//	cloudMatのイテレータ
+		for (int y = 0; y < depthMat.rows; y++)
+		{
+			for (int x = 0; x < depthMat.cols; x++)
+			{
+				NUI_DEPTH_IMAGE_POINT depthPoints;
+				depthPoints.x = x;
+				depthPoints.y = y;
+				depthPoints.depth = depthMat.at<unsigned short>(y, x);
+				Vector4 RealPoints;
+				pCoordinateMapper->MapDepthPointToSkeletonPoint(depthResolution, &depthPoints, &RealPoints);
+				point[y * depthMat.cols + x].x = RealPoints.x;
+				point[y * depthMat.cols + x].y = RealPoints.y;
+				point[y * depthMat.cols + x].z = RealPoints.z;
+			}
+		}
+	}
+	void cvtDepth2ColoredCloud(Mat &depthMat, Mat &colorImg, Mat &cloudMat, Mat &colorMat)
+	{
+		//Mat tempMat = Mat(depthMat.size(), CV_32FC3);
+		cloudMat = Mat(1, depthMat.cols * depthMat.rows, CV_32FC3);
+		colorMat = Mat(1, depthMat.cols * depthMat.rows, CV_8UC3);
+		Point3f *point = cloudMat.ptr<cv::Point3f>();					//	cloudMatのイテレータ
+		Point3f *cp = colorMat.ptr<cv::Point3f>();					//	colorMatのイテレータ
+		for (int y = 0; y < depthMat.rows; y++)
+		{
+			for (int x = 0; x < depthMat.cols; x++)
+			{
+				NUI_DEPTH_IMAGE_POINT depthPoints;
+				depthPoints.x = x;
+				depthPoints.y = y;
+				depthPoints.depth = depthMat.at<unsigned short>(y, x);
+				Vector4 RealPoints;
+				pCoordinateMapper->MapDepthPointToSkeletonPoint(depthResolution, &depthPoints, &RealPoints);
+				point[y * depthMat.cols + x].x = RealPoints.x;
+				point[y * depthMat.cols + x].y = RealPoints.y;
+				point[y * depthMat.cols + x].z = RealPoints.z;
+				cp[y * depthMat.cols + x].x = matB(colorImg, x, y);
+				cp[y * depthMat.cols + x].y = matG(colorImg, x, y);
+				cp[y * depthMat.cols + x].z = matR(colorImg, x, y);
+			}
+		}
 	}
 	void releaseFrames()
 	{

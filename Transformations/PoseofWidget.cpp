@@ -13,7 +13,6 @@ int main()
 {
 	/// Create a window
 	viz::Viz3d myWindow("Coordinate Frame");
-
 	/// Add coordinate axes
 	//	XYZç¿ïWé≤Ç™ï`Ç©ÇÍÇÈ
 	myWindow.showWidget("Coordinate Widget", viz::WCoordinateSystem());
