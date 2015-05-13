@@ -37,7 +37,7 @@ int main(void)
 		// フレームの解放
 		kSensor.releaseFrames();
 
-		if(myWindow.wasStopped())	//	E key
+		if(myWindow.wasStopped())	//	Press E key　VizでQキーを押して中断されたらTerminateApp()を無視して続行するとよい　中止しようとするとフリーズする
 			break;
 	}
 	//waitKey(1000);
