@@ -27,14 +27,12 @@ int main(void)
 		cv::imshow("Color", colorMat);
 		cv::imshow("Depth", grayMat);
 
-		Mat cloudMat;
-		kSensor.cvtDepth2Cloud(depthMat, cloudMat);
-		Mat colors(cloudMat.size(), CV_8UC3);
-
-		viz::WCloud cw(cloudMat, colors);
+		Mat cloudMat, colors;
+		kSensor.cvtDepth2Cloud(depthMat,cloudMat);
+		viz::WCloud cw(cloudMat, colorMat);
 		myWindow.showWidget("Kinect", cw, Affine3d().translate(Vec3d(0.0, 0.0, 0.0)));
 
-		myWindow.spinOnce(1, true);
+		myWindow.spinOnce(10, true);
 
 		// ÉtÉåÅ[ÉÄÇÃâï˙
 		kSensor.releaseFrames();
@@ -42,7 +40,7 @@ int main(void)
 		if(myWindow.wasStopped())	//	E key
 			break;
 	}
-	waitKey(1000);
+	//waitKey(1000);
 	kSensor.shutdown();
 	cv::destroyAllWindows();
 

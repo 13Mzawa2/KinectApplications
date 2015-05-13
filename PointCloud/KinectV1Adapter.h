@@ -256,13 +256,11 @@ public:
 			&pDepthFrameTexture);
 		pDepthFrameTexture->LockRect(0, &depthLockedRect, nullptr, 0);
 
-		//	Depth画像をカラー画像に位置合わせする
+		//	DepthセンサーのrawデータからデプスマップとプレイヤーIDを切り分ける
 		depthMat = cv::Mat::zeros(depthHeight, depthWidth, CV_16UC1);
 		playerMask = cv::Mat::zeros(depthHeight, depthWidth, CV_8UC3);
 		pDepthPixel = reinterpret_cast<NUI_DEPTH_IMAGE_PIXEL*>(depthLockedRect.pBits);
 
-
-		//	DepthセンサーのrawデータからデプスマップとプレイヤーIDを切り分ける
 		for (int y = 0; y < depthHeight; y++)
 		{
 			for (int x = 0; x < depthWidth; x++)
@@ -294,6 +292,9 @@ public:
 		pDepthFrameTexture->LockRect(0, &depthLockedRect, nullptr, 0);
 
 		//	Depthマップをカラー画像にマッピング
+		depthMat = cv::Mat::zeros(depthHeight, depthWidth, CV_16UC1);
+		playerMask = cv::Mat::zeros(depthHeight, depthWidth, CV_8UC3);
+		pDepthPixel = reinterpret_cast<NUI_DEPTH_IMAGE_PIXEL*>(depthLockedRect.pBits);
 		std::vector<NUI_COLOR_IMAGE_POINT> pColorPoint = std::vector<NUI_COLOR_IMAGE_POINT>(imageWidth * imageHeight);
 		pCoordinateMapper->MapDepthFrameToColorFrame(
 			depthResolution, depthWidth * depthHeight, pDepthPixel,
@@ -559,8 +560,8 @@ public:
 	}
 	void cvtDepth2Cloud(Mat &depthMat, Mat &cloudMat)
 	{
-		//Mat tempMat = Mat(depthMat.size(), CV_32FC3);
-		cloudMat = Mat(1, depthMat.cols * depthMat.rows, CV_32FC3);
+		//cloudMat = Mat(1, depthMat.cols * depthMat.rows, CV_32FC3);
+		cloudMat = Mat(depthMat.rows, depthMat.cols, CV_32FC3);
 		Point3f *point = cloudMat.ptr<cv::Point3f>();					//	cloudMatのイテレータ
 		for (int y = 0; y < depthMat.rows; y++)
 		{
@@ -575,32 +576,6 @@ public:
 				point[y * depthMat.cols + x].x = RealPoints.x;
 				point[y * depthMat.cols + x].y = RealPoints.y;
 				point[y * depthMat.cols + x].z = RealPoints.z;
-			}
-		}
-	}
-	void cvtDepth2ColoredCloud(Mat &depthMat, Mat &colorImg, Mat &cloudMat, Mat &colorMat)
-	{
-		//Mat tempMat = Mat(depthMat.size(), CV_32FC3);
-		cloudMat = Mat(1, depthMat.cols * depthMat.rows, CV_32FC3);
-		colorMat = Mat(1, depthMat.cols * depthMat.rows, CV_8UC3);
-		Point3f *point = cloudMat.ptr<cv::Point3f>();					//	cloudMatのイテレータ
-		Point3f *cp = colorMat.ptr<cv::Point3f>();					//	colorMatのイテレータ
-		for (int y = 0; y < depthMat.rows; y++)
-		{
-			for (int x = 0; x < depthMat.cols; x++)
-			{
-				NUI_DEPTH_IMAGE_POINT depthPoints;
-				depthPoints.x = x;
-				depthPoints.y = y;
-				depthPoints.depth = depthMat.at<unsigned short>(y, x);
-				Vector4 RealPoints;
-				pCoordinateMapper->MapDepthPointToSkeletonPoint(depthResolution, &depthPoints, &RealPoints);
-				point[y * depthMat.cols + x].x = RealPoints.x;
-				point[y * depthMat.cols + x].y = RealPoints.y;
-				point[y * depthMat.cols + x].z = RealPoints.z;
-				cp[y * depthMat.cols + x].x = matB(colorImg, x, y);
-				cp[y * depthMat.cols + x].y = matG(colorImg, x, y);
-				cp[y * depthMat.cols + x].z = matR(colorImg, x, y);
 			}
 		}
 	}
