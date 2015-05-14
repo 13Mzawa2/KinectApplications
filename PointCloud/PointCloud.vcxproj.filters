@@ -18,7 +18,7 @@
     <ClInclude Include="KinectV1Adapter.h">
       <Filter>ヘッダー ファイル</Filter>
     </ClInclude>
-    <ClInclude Include="..\include\OpenCVAdapter.hpp">
+    <ClInclude Include="OpenCVAdapter.h">
       <Filter>ヘッダー ファイル</Filter>
     </ClInclude>
   </ItemGroup>

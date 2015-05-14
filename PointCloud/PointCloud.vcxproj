@@ -41,12 +41,12 @@
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <LinkIncremental>true</LinkIncremental>
-    <IncludePath>../include;C:\opencv\build\include;$(KINECTSDK10_DIR)inc;$(VC_IncludePath);$(WindowsSDK_IncludePath);</IncludePath>
+    <IncludePath>C:\opencv\build\include;$(KINECTSDK10_DIR)inc;$(VC_IncludePath);$(WindowsSDK_IncludePath);</IncludePath>
     <LibraryPath>C:\opencv\build\x86\vc12\lib;C:\opencv\build\x86\vc12\staticlib;$(KINECTSDK10_DIR)lib\x86;$(WindowsSDK_LibraryPath_x86);$(KINECT_TOOLKIT_DIR)Lib;$(VC_LibraryPath_x86);$(WindowsSDK_LibraryPath_x86);</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <LinkIncremental>false</LinkIncremental>
-    <IncludePath>../include;C:\opencv\build\include;$(KINECTSDK10_DIR)inc;$(VC_IncludePath);$(WindowsSDK_IncludePath);</IncludePath>
+    <IncludePath>C:\opencv\build\include;$(KINECTSDK10_DIR)inc;$(VC_IncludePath);$(WindowsSDK_IncludePath);</IncludePath>
     <LibraryPath>C:\opencv\build\x86\vc12\lib;C:\opencv\build\x86\vc12\staticlib;$(KINECTSDK10_DIR)lib\x86;$(WindowsSDK_LibraryPath_x86);$(KINECT_TOOLKIT_DIR)Lib;$(VC_LibraryPath_x86);$(WindowsSDK_LibraryPath_x86);</LibraryPath>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
@@ -82,8 +82,8 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClInclude Include="..\include\OpenCVAdapter.hpp" />
     <ClInclude Include="KinectV1Adapter.h" />
+    <ClInclude Include="OpenCVAdapter.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="PointCloud.cpp" />
