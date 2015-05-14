@@ -27,7 +27,7 @@ int main(void)
 		cv::imshow("Color", colorMat);
 		cv::imshow("Depth", grayMat);
 
-		Mat cloudMat, colors;
+		Mat cloudMat;
 		kSensor.cvtDepth2Cloud(depthMat,cloudMat);
 		viz::WCloud cw(cloudMat, colorMat);
 		myWindow.showWidget("Kinect", cw, Affine3d().translate(Vec3d(0.0, 0.0, 0.0)));
