@@ -41,10 +41,14 @@ int main(void)
 		// フレームの解放
 		kSensor.releaseFrames();
 
+<<<<<<< ours
 		// ループの終了判定(Escキー)
 		int key = cv::waitKey(1);
 		if (key == VK_ESCAPE)
 		{
+=======
+		if(myWindow.wasStopped())	//	E key
+>>>>>>> theirs
 			break;
 		}
 
