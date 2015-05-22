@@ -56,7 +56,7 @@ void mainLoop()
 		}
 	}
 	glEnd();
-
+	glFlush();
 	glutSwapBuffers();
 }
 void reshape(int w, int h)
@@ -130,6 +130,7 @@ void glutIdleEvent()
 	imshow("cam", cameraImg);
 	imshow("depth", depthGrayImg);
 	kSensor.cvtDepth2Cloud(depthImg, cloudImg);
+	kSensor.releaseFrames();
 	glutPostRedisplay();		//	çƒï`âÊ
 }
 
