@@ -217,22 +217,20 @@ public:
 		if (useColorFrame)
 		{
 			ResetEvent(hColorEvent);
-			WaitForSingleObject(hColorEvent, INFINITE);
 		}
 		if(useDepthFrame)
 		{
 			ResetEvent(hDepthEvent);
-			WaitForSingleObject(hDepthEvent, INFINITE);
 		}
 		if (useSkeletonFrame)
 		{
 			ResetEvent(hSkeletonEvent);
-			WaitForSingleObject(hSkeletonEvent, INFINITE);
 		}
 		//WaitForMultipleObjects(hEvents.size(), hEvents.data(), true, INFINITE);
 	}
 	int getColorFrame(cv::Mat& colorMat)
 	{
+			WaitForSingleObject(hColorEvent, INFINITE);
 		// Colorカメラからフレームを取得
 		hResult = pSensor->NuiImageStreamGetNextFrame(hColorHandle, 0, &pColorFrame);
 		if (FAILED(hResult)){
@@ -253,6 +251,7 @@ public:
 	}
 	int getDepthFrame(cv::Mat& depthMat, cv::Mat& playerMask = cv::Mat())
 	{
+			WaitForSingleObject(hDepthEvent, INFINITE);
 		// Depthカメラからフレームを取得
 		hResult = pSensor->NuiImageStreamGetNextFrame(hDepthHandle, 0, &pDepthFrame);
 		if (FAILED(hResult)){
@@ -288,6 +287,7 @@ public:
 	}
 	int getDepthFrameCoordinated(cv::Mat &depthMat, cv::Mat &playerMask = cv::Mat())
 	{
+		WaitForSingleObject(hDepthEvent, INFINITE);
 		// Depthカメラからフレームを取得
 		hResult = pSensor->NuiImageStreamGetNextFrame(hDepthHandle, 0, &pDepthFrame);
 		if (FAILED(hResult)){
@@ -325,6 +325,7 @@ public:
 	}
 	int getSkeletonJoints(std::vector<cv::Point> joints[NUI_SKELETON_COUNT])
 	{
+		WaitForSingleObject(hSkeletonEvent, INFINITE);
 		// Skeletonフレームを取得
 		hResult = pSensor->NuiSkeletonGetNextFrame(0, &pSkeletonFrame);
 		if (FAILED(hResult)){
