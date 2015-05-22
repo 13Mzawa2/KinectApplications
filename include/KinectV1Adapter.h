@@ -80,10 +80,17 @@ public:
 	volatile bool usePlayerFrame = false;
 	volatile bool useSkeletonFrame = false;
 
+<<<<<<< HEAD
 	// カラーテーブル
 	cv::Vec3b color[7];
 
 
+=======
+
+	// カラーテーブル
+	cv::Vec3b color[7];
+
+>>>>>>> origin/OpenGL_PointCloud_
 	KinectV1()
 	{
 		setup(
@@ -97,7 +104,10 @@ public:
 	}
 	~KinectV1()
 	{
+<<<<<<< HEAD
 		shutdown();
+=======
+>>>>>>> origin/OpenGL_PointCloud_
 	}
 	int setup(DWORD nuiUseFlags)
 	{

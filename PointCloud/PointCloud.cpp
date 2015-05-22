@@ -30,7 +30,11 @@ int main(void)
 		Mat cloudMat;
 		kSensor.cvtDepth2Cloud(depthMat,cloudMat);
 		viz::WCloud cw(cloudMat, colorMat);
+<<<<<<< HEAD
 		myWindow.showWidget("Kinect", cw, Affine3d().translate(Vec3d(0.0, 0.0, 0.0)));
+=======
+		//myWindow.showWidget("Kinect", cw, Affine3d().translate(Vec3d(0.0, 0.0, 0.0)));
+>>>>>>> origin/OpenGL_PointCloud_
 
 		myWindow.spinOnce(10, true);
 
