@@ -131,8 +131,7 @@ void glutMotionEvent(int x, int y)
 void glutIdleEvent()
 {
 	//	Kinect‚©‚ç‚Ì“Ç
-	kSensor.waitFrames();
-	cout << kSensor.useColorFrame << endl;
+	kSensor.waitFrames(10000);
 	glutPostRedisplay();		//	Ä•`‰æ
 }
 

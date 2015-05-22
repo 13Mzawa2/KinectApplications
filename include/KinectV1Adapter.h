@@ -97,6 +97,7 @@ public:
 	}
 	~KinectV1()
 	{
+		shutdown();
 	}
 	int setup(DWORD nuiUseFlags)
 	{
@@ -152,7 +153,7 @@ public:
 			return -1;
 		}
 		getResolution(imageResolution, imageWidth, imageHeight);
-		hEvents.push_back(hColorEvent);
+		//hEvents.push_back(hColorEvent);
 
 		return 0;
 	}
@@ -173,7 +174,7 @@ public:
 			return -1;
 		}
 		getResolution(depthResolution, depthWidth, depthHeight);
-		hEvents.push_back(hDepthEvent);
+		//hEvents.push_back(hDepthEvent);
 
 		return 0;
 	}
@@ -191,7 +192,7 @@ public:
 			std::cerr << "Error : NuiSkeletonTrackingEnable" << std::endl;
 			return -1;
 		}
-		hEvents.push_back(hSkeletonEvent);
+		//hEvents.push_back(hSkeletonEvent);
 	}
 	// 解像度の取得
 	void getResolution(NUI_IMAGE_RESOLUTION resolution, int &width, int &height)
@@ -211,26 +212,34 @@ public:
 			return -1;
 		}
 	}
-	void waitFrames()
+	void waitFrames(DWORD timeout = INFINITE)
 	{
 		// フレームの更新待ち
+		DWORD ret;
 		if (useColorFrame)
 		{
 			ResetEvent(hColorEvent);
+			ret = WaitForSingleObject(hColorEvent, timeout);
 		}
 		if(useDepthFrame)
 		{
 			ResetEvent(hDepthEvent);
+			ret = WaitForSingleObject(hDepthEvent, timeout);
 		}
 		if (useSkeletonFrame)
 		{
 			ResetEvent(hSkeletonEvent);
+			ret = WaitForSingleObject(hSkeletonEvent, timeout);
+		}
+		if (ret == WAIT_TIMEOUT)
+		{
+			cout << "TIMEOUT" << endl;
+			system("PAUSE");
 		}
 		//WaitForMultipleObjects(hEvents.size(), hEvents.data(), true, INFINITE);
 	}
 	int getColorFrame(cv::Mat& colorMat)
 	{
-			WaitForSingleObject(hColorEvent, INFINITE);
 		// Colorカメラからフレームを取得
 		hResult = pSensor->NuiImageStreamGetNextFrame(hColorHandle, 0, &pColorFrame);
 		if (FAILED(hResult)){
@@ -251,7 +260,6 @@ public:
 	}
 	int getDepthFrame(cv::Mat& depthMat, cv::Mat& playerMask = cv::Mat())
 	{
-			WaitForSingleObject(hDepthEvent, INFINITE);
 		// Depthカメラからフレームを取得
 		hResult = pSensor->NuiImageStreamGetNextFrame(hDepthHandle, 0, &pDepthFrame);
 		if (FAILED(hResult)){
@@ -287,7 +295,6 @@ public:
 	}
 	int getDepthFrameCoordinated(cv::Mat &depthMat, cv::Mat &playerMask = cv::Mat())
 	{
-		WaitForSingleObject(hDepthEvent, INFINITE);
 		// Depthカメラからフレームを取得
 		hResult = pSensor->NuiImageStreamGetNextFrame(hDepthHandle, 0, &pDepthFrame);
 		if (FAILED(hResult)){
@@ -325,7 +332,6 @@ public:
 	}
 	int getSkeletonJoints(std::vector<cv::Point> joints[NUI_SKELETON_COUNT])
 	{
-		WaitForSingleObject(hSkeletonEvent, INFINITE);
 		// Skeletonフレームを取得
 		hResult = pSensor->NuiSkeletonGetNextFrame(0, &pSkeletonFrame);
 		if (FAILED(hResult)){
