@@ -80,9 +80,9 @@ public:
 	volatile bool usePlayerFrame = false;
 	volatile bool useSkeletonFrame = false;
 
-
 	// カラーテーブル
 	cv::Vec3b color[7];
+
 
 	KinectV1()
 	{
@@ -97,6 +97,7 @@ public:
 	}
 	~KinectV1()
 	{
+		shutdown();
 	}
 	int setup(DWORD nuiUseFlags)
 	{

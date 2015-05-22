@@ -32,8 +32,19 @@ void polarview()
 }
 void mainLoop()
 {
+	//	Kinectからの読込
+	kSensor.waitFrames();
+	kSensor.getColorFrame(cameraImg);
+	kSensor.getDepthFrameCoordinated(depthImg);
+	kSensor.cvtDepth2Gray(depthImg, depthGrayImg);
+	kSensor.cvtDepth2Cloud(depthImg, cloudImg);
+	imshow("cam", cameraImg);
+	imshow("depth", depthGrayImg);
+	kSensor.releaseFrames();
+
 	//	OpenGLで描画
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+	glLoadIdentity();
 	gluLookAt(
 		0, 0, 0,				//	視点位置
 		0, 0, 10.0,				//	注視点
@@ -56,7 +67,7 @@ void mainLoop()
 		}
 	}
 	glEnd();
-	glFlush();
+	
 	glutSwapBuffers();
 }
 void reshape(int w, int h)
@@ -69,7 +80,6 @@ void reshape(int w, int h)
 	//射影変換行列の指定
 	gluPerspective(glFovy, (GLfloat)w / (GLfloat)h, glZNear, glZFar);
 	glMatrixMode(GL_MODELVIEW);
-
 }
 void glutKeyEvent(unsigned char key, int x, int y)
 {
@@ -122,15 +132,6 @@ void glutMotionEvent(int x, int y)
 }
 void glutIdleEvent()
 {
-	//	Kinectからの読込
-	kSensor.waitFrames();
-	kSensor.getColorFrame(cameraImg);
-	kSensor.getDepthFrameCoordinated(depthImg);
-	kSensor.cvtDepth2Gray(depthImg, depthGrayImg);
-	imshow("cam", cameraImg);
-	imshow("depth", depthGrayImg);
-	kSensor.cvtDepth2Cloud(depthImg, cloudImg);
-	kSensor.releaseFrames();
 	glutPostRedisplay();		//	再描画
 }
 
@@ -151,9 +152,9 @@ int main(int argc, char** argv)
 	//	コールバック関数登録
 	glutDisplayFunc(mainLoop);
 	glutReshapeFunc(reshape);				//	ウィンドウの再描画
-	glutKeyboardFunc(glutKeyEvent);
-	glutMouseFunc(glutMouseEvent);
-	glutMotionFunc(glutMotionEvent);
+	glutKeyboardFunc(glutKeyEvent);			//	キーボード操作
+	glutMouseFunc(glutMouseEvent);			//	マウス操作
+	glutMotionFunc(glutMotionEvent);		//	ドラッグ
 	glutIdleFunc(glutIdleEvent);			//	待ち時間中の動作
 
 	glClearColor(0., 0., 0., 1.0);		//	Neutral Gray
