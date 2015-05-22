@@ -42,12 +42,12 @@ public:
 	HRESULT hResult = S_OK;							//	ハンドラの実行結果確認用
 
 	std::vector<HANDLE> hEvents;					//	イベントオブジェクト
-	HANDLE hColorEvent = INVALID_HANDLE_VALUE;		//	RGBカメライベント
-	HANDLE hDepthEvent = INVALID_HANDLE_VALUE;		//	Dカメライベント
-	HANDLE hSkeletonEvent = INVALID_HANDLE_VALUE;	//	スケルトンイベント
+	HANDLE hColorEvent = INVALID_HANDLE_VALUE;		//	RGBカメライベント（画像取得）
+	HANDLE hDepthEvent = INVALID_HANDLE_VALUE;		//	Dカメライベント（画像取得）
+	HANDLE hSkeletonEvent = INVALID_HANDLE_VALUE;	//	スケルトンイベント（データ取得）
 
-	HANDLE hColorHandle = INVALID_HANDLE_VALUE;		//	RGBカメラハンドル
-	HANDLE hDepthHandle = INVALID_HANDLE_VALUE;		//	Dカメラハンドル
+	HANDLE hColorHandle = INVALID_HANDLE_VALUE;		//	RGBカメラストリームのハンドル
+	HANDLE hDepthHandle = INVALID_HANDLE_VALUE;		//	Dカメラストリームのハンドル
 
 	NUI_IMAGE_FRAME pColorFrame;					//	カラー画像データ
 	INuiFrameTexture* pColorFrameTexture;
@@ -214,10 +214,22 @@ public:
 	void waitFrames()
 	{
 		// フレームの更新待ち
-		if (useColorFrame)	ResetEvent(hColorEvent);
-		if (useDepthFrame)	ResetEvent(hDepthEvent);
-		if (useSkeletonFrame)	ResetEvent(hSkeletonEvent);
-		WaitForMultipleObjects(hEvents.size(), hEvents.data(), true, INFINITE);
+		if (useColorFrame)
+		{
+			ResetEvent(hColorEvent);
+			WaitForSingleObject(hColorEvent, INFINITE);
+		}
+		if(useDepthFrame)
+		{
+			ResetEvent(hDepthEvent);
+			WaitForSingleObject(hDepthEvent, INFINITE);
+		}
+		if (useSkeletonFrame)
+		{
+			ResetEvent(hSkeletonEvent);
+			WaitForSingleObject(hSkeletonEvent, INFINITE);
+		}
+		//WaitForMultipleObjects(hEvents.size(), hEvents.data(), true, INFINITE);
 	}
 	int getColorFrame(cv::Mat& colorMat)
 	{

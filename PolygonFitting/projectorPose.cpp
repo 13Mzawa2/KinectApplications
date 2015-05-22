@@ -32,6 +32,13 @@ void polarview()
 }
 void mainLoop()
 {
+	kSensor.getColorFrame(cameraImg);
+	kSensor.getDepthFrameCoordinated(depthImg);
+	kSensor.cvtDepth2Gray(depthImg, depthGrayImg);
+	imshow("cam", cameraImg);
+	imshow("depth", depthGrayImg);
+	kSensor.cvtDepth2Cloud(depthImg, cloudImg);
+
 	//	OpenGLÇ≈ï`âÊ
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	gluLookAt(
@@ -57,6 +64,7 @@ void mainLoop()
 	}
 	glEnd();
 
+	//glFlush();
 	glutSwapBuffers();
 }
 void reshape(int w, int h)
@@ -124,12 +132,7 @@ void glutIdleEvent()
 {
 	//	KinectÇ©ÇÁÇÃì«çû
 	kSensor.waitFrames();
-	kSensor.getColorFrame(cameraImg);
-	kSensor.getDepthFrameCoordinated(depthImg);
-	kSensor.cvtDepth2Gray(depthImg, depthGrayImg);
-	imshow("cam", cameraImg);
-	imshow("depth", depthGrayImg);
-	kSensor.cvtDepth2Cloud(depthImg, cloudImg);
+	cout << kSensor.useColorFrame << endl;
 	glutPostRedisplay();		//	çƒï`âÊ
 }
 
