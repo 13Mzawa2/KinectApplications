@@ -67,11 +67,6 @@ void mainLoop()
 		}
 	}
 	glEnd();
-<<<<<<< HEAD
-	
-=======
-
->>>>>>> parent of 66f71b6... releaseFrames()が抜けてたことが原因だっぁE
 	glutSwapBuffers();
 }
 void reshape(int w, int h)
@@ -136,17 +131,15 @@ void glutMotionEvent(int x, int y)
 }
 void glutIdleEvent()
 {
-<<<<<<< HEAD
-=======
-	//	Kinect����̓Ǎ�
-	kSensor.waitFrames();
-	kSensor.getColorFrame(cameraImg);
-	kSensor.getDepthFrameCoordinated(depthImg);
-	kSensor.cvtDepth2Gray(depthImg, depthGrayImg);
-	imshow("cam", cameraImg);
-	imshow("depth", depthGrayImg);
-	kSensor.cvtDepth2Cloud(depthImg, cloudImg);
->>>>>>> parent of 66f71b6... releaseFrames()が抜けてたことが原因だっぁE
+	////	Kinect����̓Ǎ�
+	//kSensor.waitFrames();
+	//kSensor.getColorFrame(cameraImg);
+	//kSensor.getDepthFrameCoordinated(depthImg);
+	//kSensor.cvtDepth2Gray(depthImg, depthGrayImg);
+	//imshow("cam", cameraImg);
+	//imshow("depth", depthGrayImg);
+	//kSensor.cvtDepth2Cloud(depthImg, cloudImg);
+	//kSensor.releaseFrames();
 	glutPostRedisplay();		//	�ĕ`��
 }
 
