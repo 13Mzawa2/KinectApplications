@@ -6,7 +6,7 @@ CalibrationEngine::CalibrationEngine()
 	chessRectPoint = Point(100, 100);
 	projectorWindowSize = Size(1400, 1050);
 	numChessPoint = Size(10, 7);
-	chessSize = 50;
+	chessSize = 100;
 
 	calibrationWindow = Mat(projectorWindowSize, CV_8UC3, Scalar(255,255,255));
 	namedWindow("calibWindow");
@@ -33,27 +33,34 @@ void CalibrationEngine::calibrateProCam(KinectV1 kinect)
 		<< "なるべくカメラ全体に平面板が写るように近づけてください．" << endl
 		<< "確認が終わったらspaceキーを押してください．" << endl;
 	Mat colorImg, chessPro, chessCam;
-	while (waitKey(10) != ' ')
+	while (1)
 	{
 		kinect.waitFrames();
 		kinect.getColorFrame(colorImg);
 		flip(colorImg, colorImg, 1);
 		imshow("確認用", colorImg);
 		kinect.releaseFrames();
+		if (waitKey(10) == ' ') break;
 	}
 	//	チェスパターンの2値化
 	splitChessPattern(colorImg, chessPro, chessCam);
-	adaptiveThreshold(chessPro, chessPro, 255, ADAPTIVE_THRESH_GAUSSIAN_C, THRESH_BINARY, 161, 10);
-	adaptiveThreshold(chessCam, chessCam, 255, ADAPTIVE_THRESH_GAUSSIAN_C, THRESH_BINARY, 161, 10);
-	imshow("Projector", chessPro);
-	imshow("Camera", chessCam);
+	adaptiveThreshold(chessPro, chessPro, 255, ADAPTIVE_THRESH_GAUSSIAN_C, THRESH_BINARY, 181, 0);
+	adaptiveThreshold(chessCam, chessCam, 255, ADAPTIVE_THRESH_GAUSSIAN_C, THRESH_BINARY, 181, 0);
 	//	チェスパターンのカメラ座標取得 基本的に平面板がより大きく映っている
 	vector<Point2f> chessProCorners, chessCamCorners;
-	getChessPoints(chessPro, chessProCorners);
-	getChessPoints(chessCam, chessCamCorners);
-	if (chessProCorners.empty() || chessCamCorners.empty())
+	bool proFound = getChessPoints(chessPro, chessProCorners);
+	bool camFound = getChessPoints(chessCam, chessCamCorners);
+	cout << "チェスパターンを描画します．" << endl;
+	cvtColor(chessPro, chessPro, CV_GRAY2BGR);
+	cvtColor(chessCam, chessCam, CV_GRAY2BGR);
+	drawChessboardCorners(chessPro, numChessPoint, chessProCorners, proFound);
+	drawChessboardCorners(chessCam, numChessPoint, chessCamCorners, camFound);
+	imshow("Projector", chessPro);
+	imshow("Camera", chessCam);
+	imshow("確認用", colorImg);
+	if (!proFound || !camFound)
 	{
-		cout << "チェスパターンが見つかりませんでした．" << endl;
+		cout << "チェスパターンが見つかりませんでした．" << endl << endl;
 		waitKey(0);
 		destroyAllCalibrationWindows();
 		return;
@@ -64,16 +71,16 @@ void CalibrationEngine::calibrateProCam(KinectV1 kinect)
 		(chessCamCorners.at(0).y + chessProCorners.at(0).y - chessRectPoint.y - chessSize / getProCamRatio()) * getProCamRatio());
 	chessSize = (int)(chessSize * getProCamRatio()
 		* distance(
-		chessCamCorners.at(3 * 10 + 3),
-		chessCamCorners.at(3 * 10 + 4))
+		chessCamCorners.at(3 * numChessPoint.width + 3),
+		chessCamCorners.at(3 * numChessPoint.width + 4))
 		/ distance(
-		chessProCorners.at(3 * 10 + 3),
-		chessProCorners.at(3 * 10 + 4)));
+		chessProCorners.at(3 * numChessPoint.width + 3),
+		chessProCorners.at(3 * numChessPoint.width + 4)));
 	cout
-		<< "初期位置: " << chessRectPoint << endl
+		<< "ROI原点: " << chessRectPoint << endl
 		<< "プロジェクタのウインドウサイズ: " << projectorWindowSize << endl
 		<< "チェスボードのコーナー数: " << numChessPoint << endl
-		<< "チェスボードの初期サイズ: " << chessSize << endl;
+		<< "チェスボードの変更後サイズ: " << chessSize << endl;
 	waitKey(0);
 	//	新しいチェスパターンを作成して表示
 	calibrationWindow = Mat(projectorWindowSize, CV_8UC3, Scalar(255, 255, 255));
@@ -129,13 +136,16 @@ void CalibrationEngine::splitChessPattern(Mat &src, Mat &chessPro, Mat &chessCam
 	chessPro = planes[0].clone();		//	投影色は黄色 --> 赤で分離可能
 	chessCam = planes[2].clone();		//	撮影色はシアン --> 青で分離可能
 }
-void CalibrationEngine::getChessPoints(Mat chessImg, vector<Point2f> &corners)
+bool CalibrationEngine::getChessPoints(Mat chessImg, vector<Point2f> &corners)
 {
 	bool found = findChessboardCorners(chessImg, numChessPoint, corners,
-		CALIB_CB_ADAPTIVE_THRESH + CALIB_CB_NORMALIZE_IMAGE + CALIB_CB_FAST_CHECK);
+		CALIB_CB_NORMALIZE_IMAGE + CALIB_CB_FAST_CHECK);
 	if (found)
+	{
 		cornerSubPix(chessImg, corners, Size(11, 11), Size(-1, -1),
 			TermCriteria(CV_TERMCRIT_EPS + CV_TERMCRIT_ITER, 30, 0.1));
+	}
+	return found;
 }
 
 double CalibrationEngine::distance(Point2f p1, Point2f p2)
