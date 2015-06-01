@@ -3,7 +3,7 @@
 
 CalibrationEngine::CalibrationEngine()
 {
-	calibrationWindow = Mat(projectorWindowSize, CV_8UC3, Scalar(128, 128, 128));
+	calibrationWindow = Mat(projectorWindowSize, CV_8UC3, Scalar(255,255,255));
 }
 
 
@@ -16,7 +16,7 @@ void CalibrationEngine::calibrateProCam(KinectV1 kinect)
 	//	1. 投影パターンサイズの自動調節
 	cout << "Starting Calibration..." << endl << endl;
 	//	初期チェスパターンを作成
-	createChessPattern(chessYellow, Scalar(0, 255, 255), Scalar(128, 128, 128));
+	createChessPattern(chessYellow, Scalar(0, 255, 255), Scalar(255,255,255));
 	Rect roi_rect(chessRectPoint, chessYellow.size());
 	Mat roiWindow = calibrationWindow(roi_rect);
 	chessYellow.copyTo(roiWindow);
@@ -31,11 +31,14 @@ void CalibrationEngine::calibrateProCam(KinectV1 kinect)
 	{
 		kinect.waitFrames();
 		kinect.getColorFrame(colorImg);
+		flip(colorImg, colorImg, 1);
 		imshow("確認用", colorImg);
 		kinect.releaseFrames();
 	}
 	//	チェスパターンの2値化
 	splitChessPattern(colorImg, chessPro, chessCam);
+	adaptiveThreshold(chessPro, chessPro, 255, ADAPTIVE_THRESH_GAUSSIAN_C, THRESH_BINARY, 161, 10);
+	adaptiveThreshold(chessCam, chessCam, 255, ADAPTIVE_THRESH_GAUSSIAN_C, THRESH_BINARY, 161, 10);
 	imshow("Projector", chessPro);
 	imshow("Camera", chessCam);
 	//	チェスパターンのカメラ座標取得 基本的に平面板がより大きく映っている
@@ -57,7 +60,7 @@ void CalibrationEngine::calibrateProCam(KinectV1 kinect)
 		chessCamCorners.at(0).x + chessProCorners.at(0).x - 150,
 		chessCamCorners.at(0).y + chessProCorners.at(0).y - 150);
 	//	新しいチェスパターンを作成して表示
-	createChessPattern(chessYellow, Scalar(0, 255, 255), Scalar(128, 128, 128));
+	createChessPattern(chessYellow, Scalar(0, 255, 255), Scalar(255,255,255));
 	roi_rect = Rect(chessRectPoint, chessYellow.size());
 	roiWindow = calibrationWindow(roi_rect);
 	chessYellow.copyTo(roiWindow);
