@@ -52,7 +52,7 @@ void reshape(int w, int h)
 }
 void glutKeyEvent(unsigned char key, int x, int y)
 {
-		Mat chess;
+	Mat chess;
 	switch (key)
 	{
 	//	キャリブレーション

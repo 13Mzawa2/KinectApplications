@@ -4,6 +4,7 @@
 #include "KinectV1Adapter.h"
 #include "CalibrationEngine.h"
 #include <gl\glut.h>
+#include "FullscreenWindow.h"
 
 KinectV1 kSensor;
 CalibrationEngine cEngine;

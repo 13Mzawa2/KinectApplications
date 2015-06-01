@@ -3,9 +3,15 @@
 
 CalibrationEngine::CalibrationEngine()
 {
-	calibrationWindow = Mat(projectorWindowSize, CV_8UC3, Scalar(255,255,255));
-}
+	chessRectPoint = Point(100, 100);
+	projectorWindowSize = Size(1400, 1050);
+	numChessPoint = Size(10, 7);
+	chessSize = 50;
 
+	calibrationWindow = Mat(projectorWindowSize, CV_8UC3, Scalar(255,255,255));
+	namedWindow("calibWindow");
+	calib_fw.setFullscreen("calibWindow");
+}
 
 CalibrationEngine::~CalibrationEngine()
 {
@@ -48,26 +54,42 @@ void CalibrationEngine::calibrateProCam(KinectV1 kinect)
 	if (chessProCorners.empty() || chessCamCorners.empty())
 	{
 		cout << "チェスパターンが見つかりませんでした．" << endl;
-		destroyWindow("calibWindow");
-		destroyWindow("確認用");
+		waitKey(0);
+		destroyAllCalibrationWindows();
 		return;
 	}
 	//	投影チェスパターンの位置・大きさを調節
-	chessSize = (int)(0.8 * distance(
-		chessCamCorners.at(3 * numChessPoint.width + 3),
-		chessCamCorners.at(4 * numChessPoint.width + 3)));
 	chessRectPoint = Point(
-		chessCamCorners.at(0).x + chessProCorners.at(0).x - 150,
-		chessCamCorners.at(0).y + chessProCorners.at(0).y - 150);
+		(chessCamCorners.at(0).x + chessProCorners.at(0).x - chessRectPoint.x - chessSize / getProCamRatio()) * getProCamRatio(),
+		(chessCamCorners.at(0).y + chessProCorners.at(0).y - chessRectPoint.y - chessSize / getProCamRatio()) * getProCamRatio());
+	chessSize = (int)(chessSize * getProCamRatio()
+		* distance(
+		chessCamCorners.at(3 * 10 + 3),
+		chessCamCorners.at(3 * 10 + 4))
+		/ distance(
+		chessProCorners.at(3 * 10 + 3),
+		chessProCorners.at(3 * 10 + 4)));
+	cout
+		<< "初期位置: " << chessRectPoint << endl
+		<< "プロジェクタのウインドウサイズ: " << projectorWindowSize << endl
+		<< "チェスボードのコーナー数: " << numChessPoint << endl
+		<< "チェスボードの初期サイズ: " << chessSize << endl;
+	waitKey(0);
 	//	新しいチェスパターンを作成して表示
+	calibrationWindow = Mat(projectorWindowSize, CV_8UC3, Scalar(255, 255, 255));
 	createChessPattern(chessYellow, Scalar(0, 255, 255), Scalar(255,255,255));
 	roi_rect = Rect(chessRectPoint, chessYellow.size());
 	roiWindow = calibrationWindow(roi_rect);
 	chessYellow.copyTo(roiWindow);
 	imshow("calibWindow", calibrationWindow);
+	//	show current image
+	kinect.waitFrames();
+	kinect.getColorFrame(colorImg);
+	flip(colorImg, colorImg, 1);
+	imshow("確認用", colorImg);
 	waitKey(0);
-	destroyWindow("calibWindow");
-	destroyWindow("確認用");
+	destroyAllCalibrationWindows();
+
 	//	2. 入力画像の撮影
 	//	3. 入力画像の分離
 	//	4. カメラの内部校正
@@ -107,7 +129,7 @@ void CalibrationEngine::splitChessPattern(Mat &src, Mat &chessPro, Mat &chessCam
 	chessPro = planes[0].clone();		//	投影色は黄色 --> 赤で分離可能
 	chessCam = planes[2].clone();		//	撮影色はシアン --> 青で分離可能
 }
-void CalibrationEngine::getChessPoints(Mat chessImg, vector<Point2f> corners)
+void CalibrationEngine::getChessPoints(Mat chessImg, vector<Point2f> &corners)
 {
 	bool found = findChessboardCorners(chessImg, numChessPoint, corners,
 		CALIB_CB_ADAPTIVE_THRESH + CALIB_CB_NORMALIZE_IMAGE + CALIB_CB_FAST_CHECK);
@@ -119,4 +141,17 @@ void CalibrationEngine::getChessPoints(Mat chessImg, vector<Point2f> corners)
 double CalibrationEngine::distance(Point2f p1, Point2f p2)
 {
 	return sqrt((p1.x - p2.x)*(p1.x - p2.x) + (p1.y - p2.y)*(p1.y - p2.y));
+}
+
+void CalibrationEngine::destroyAllCalibrationWindows()
+{
+	destroyWindow("calibWindow");
+	destroyWindow("確認用");
+	destroyWindow("Projector");
+	destroyWindow("Camera");
+}
+
+double CalibrationEngine::getProCamRatio()
+{
+	return (double)projectorWindowSize.width / KINECT_CAM_WIDTH;
 }
