@@ -34,4 +34,7 @@ void glutMouseEvent(int button, int state, int x, int y);
 void glutMotionEvent(int x, int y);
 void glutIdleEvent();
 
+//	UI‚Ì‚½‚ß‚ÌŠÖ”
+void setcam();
+
 #endif //	MAIN_H_

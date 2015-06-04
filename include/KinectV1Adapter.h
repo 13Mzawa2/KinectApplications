@@ -93,6 +93,12 @@ public:
 	int beginSkeletonStream();
 	void getResolution(NUI_IMAGE_RESOLUTION resolution, int &width, int &height);
 	int coordinate();
+	//	カメラ設定
+	void getCameraSettingInterface();
+	void setAutoWhiteBalance(BOOL isAutoWhiteBalance);
+	BOOL getAutoWhiteBalance();
+	void setAutoExposure(BOOL isAutoExposure);
+	BOOL getAutoExposure();
 	//	データ取得・表示
 	void waitFrames();
 	int getColorFrame(cv::Mat& colorMat);

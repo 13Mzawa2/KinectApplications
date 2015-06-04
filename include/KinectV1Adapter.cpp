@@ -45,6 +45,7 @@ int KinectV1::setup(DWORD nuiUseFlags)
 	beginColorStream();
 	beginDepthStream();
 	beginSkeletonStream();
+	getCameraSettingInterface();
 
 	coordinate();
 
@@ -127,6 +128,35 @@ int KinectV1::coordinate()
 		return -1;
 	}
 }
+
+//	RGBカメラ設定ストリーム取得
+void KinectV1::getCameraSettingInterface()
+{
+	pSensor->NuiGetColorCameraSettings(&pCameraSettings);
+}
+//	自動ホワイトバランスの設定・取得
+void KinectV1::setAutoWhiteBalance(BOOL isAutoWhiteBalance)
+{
+	pCameraSettings->SetAutoWhiteBalance(isAutoWhiteBalance);
+}
+BOOL KinectV1::getAutoWhiteBalance()
+{
+	BOOL isAutoWhiteBalance = FALSE;
+	pCameraSettings->GetAutoWhiteBalance(&isAutoWhiteBalance);
+	return isAutoWhiteBalance;
+}
+//	自動露出の設定・取得
+void KinectV1::setAutoExposure(BOOL isAutoExposure)
+{
+	pCameraSettings->SetAutoExposure(isAutoExposure);
+}
+BOOL KinectV1::getAutoExposure()
+{
+	BOOL isAutoExposure = FALSE;
+	pCameraSettings->GetAutoExposure(&isAutoExposure);
+	return isAutoExposure;
+}
+
 void KinectV1::waitFrames()
 {
 	// フレームの更新待ち

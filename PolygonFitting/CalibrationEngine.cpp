@@ -3,22 +3,30 @@
 
 CalibrationEngine::CalibrationEngine()
 {
-	chessRectPoint = Point(100, 100);
-	projectorWindowSize = Size(1400, 1050);
-	numChessPoint = Size(10, 7);
-	chessSize = 100;
-
-	calibrationWindow = Mat(projectorWindowSize, CV_8UC3, Scalar(255,255,255));
-	namedWindow("calibWindow");
-	calib_fw.setFullscreen("calibWindow");
 }
 
 CalibrationEngine::~CalibrationEngine()
 {
 }
 
+void CalibrationEngine::setup()
+{
+	chessRectPoint = Point(100, 300);
+	projectorWindowSize = Size(PROJECTOR_WINDOW_WIDTH, PROJECTOR_WINDOW_HEIGHT);
+	numChessPoint = Size(CALIB_CB_CORNER_COLS, CALIB_CB_CORNER_ROWS);
+	chessSize = CALIB_DEFAULT_CHESS_SIZE;
+
+	calibrationWindow = Mat(projectorWindowSize, CV_8UC3, Scalar(255, 255, 255));
+	namedWindow("calibWindow");
+	cout << "キャリブレーションを始めたいプロジェクタにウインドウを移動してください．" << endl;
+	waitKey(0);
+	calib_fw.setFullscreen("calibWindow");
+
+}
+
 void CalibrationEngine::calibrateProCam(KinectV1 kinect)
 {
+	setup();
 	//	1. 投影パターンサイズの自動調節
 	cout << "Starting Calibration..." << endl << endl;
 	//	初期チェスパターンを作成
@@ -44,8 +52,8 @@ void CalibrationEngine::calibrateProCam(KinectV1 kinect)
 	}
 	//	チェスパターンの2値化
 	splitChessPattern(colorImg, chessPro, chessCam);
-	adaptiveThreshold(chessPro, chessPro, 255, ADAPTIVE_THRESH_GAUSSIAN_C, THRESH_BINARY, 181, 0);
-	adaptiveThreshold(chessCam, chessCam, 255, ADAPTIVE_THRESH_GAUSSIAN_C, THRESH_BINARY, 181, 0);
+	adaptiveThreshold(chessPro, chessPro, 255, ADAPTIVE_THRESH_GAUSSIAN_C, THRESH_BINARY, 141, 20);
+	adaptiveThreshold(chessCam, chessCam, 255, ADAPTIVE_THRESH_GAUSSIAN_C, THRESH_BINARY, 141, 20);
 	//	チェスパターンのカメラ座標取得 基本的に平面板がより大きく映っている
 	vector<Point2f> chessProCorners, chessCamCorners;
 	bool proFound = getChessPoints(chessPro, chessProCorners);
@@ -102,6 +110,11 @@ void CalibrationEngine::calibrateProCam(KinectV1 kinect)
 	//	4. カメラの内部校正
 	//	5. プロジェクタの内部校正
 	//	6. カメラプロジェクタ間の外部構成の高精度化
+}
+
+void CalibrationEngine::rescaleChessPattern()
+{
+
 }
 
 void CalibrationEngine::createChessPattern(Mat &chess, Scalar color, Scalar backcolor)

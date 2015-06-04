@@ -64,6 +64,11 @@ void glutKeyEvent(unsigned char key, int x, int y)
 		cEngine.createChessPattern(chess, Scalar(255, 255, 0), Scalar(255, 255,255));
 		imwrite("chess7x10.png", chess);
 		break;
+	//	カメラの自動ホワイトバランス・露出設定
+	case 'a':
+		setcam();
+		break;
+
 	//	終了処理
 	case VK_ESCAPE:	//	Esc
 		exit(0);
@@ -157,5 +162,32 @@ int main(int argc, char** argv)
 	cv::destroyAllWindows();
 
 	return 0;
+
+}
+
+//------------------------------------------------
+//	UIのための関数群
+//------------------------------------------------
+void setcam()
+{
+	char yn = 0;
+	cout << "カメラの設定をします．" << endl
+		<< "現在の設定..." << endl;
+	if (kSensor.getAutoWhiteBalance())
+		cout << "自動ホワイトバランス：入" << endl;
+	else
+		cout << "自動ホワイトバランス：切" << endl;
+	cout << "現在の設定を変更しますか？(y/n)：";
+	cin >> yn;
+	kSensor.setAutoWhiteBalance((yn == 'y'));
+
+	if (kSensor.getAutoExposure())
+		cout << "自動露出：入" << endl;
+	else
+		cout << "自動露出：切" << endl;
+	cout << "現在の設定を変更しますか？(y/n)：";
+	cin >> yn;
+	kSensor.setAutoWhiteBalance((yn == 'y'));
+	cout << "設定を変更しました．" << endl;
 
 }

@@ -3,6 +3,14 @@
 #include "KinectV1Adapter.h"
 #include "FullscreenWindow.h"
 
+#define PROJECTOR_WINDOW_WIDTH		1400
+#define PROJECTOR_WINDOW_HEIGHT		1050
+
+#define CALIB_CB_CORNER_COLS		10
+#define CALIB_CB_CORNER_ROWS		7
+
+#define CALIB_DEFAULT_CHESS_SIZE	50
+
 class CalibrationEngine
 {
 public:
@@ -16,7 +24,9 @@ public:
 
 	CalibrationEngine();
 	~CalibrationEngine();
+	void setup();
 	void calibrateProCam(KinectV1 kinect);		//	Cyan色チェッカーの平面版を用いたプロジェクタキャリブレーション(清田ら)
+	void rescaleChessPattern();
 	void createChessPattern(Mat &chess, Scalar color, Scalar backcolor = Scalar(0,0,0));
 	void splitChessPattern(Mat &srcImg, Mat &chessPro, Mat &chessCam);
 	bool getChessPoints(Mat chessImg, vector<Point2f> &corners);
