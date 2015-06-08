@@ -53,9 +53,10 @@ void CalibrationEngine::calibrateProCam(KinectV1 kinect)
 	//	チェスパターンの2値化
 	splitChessPattern(colorImg, chessPro, chessCam);
 	adaptiveThreshold(chessPro, chessPro, 255, ADAPTIVE_THRESH_GAUSSIAN_C, THRESH_BINARY, 141, 20);
+	morphologyEx(chessPro, chessPro, MORPH_OPEN, Mat(3, 3, CV_8U, cv::Scalar::all(255)), Point(-1, -1), 3);	//	opening
 	//adaptiveThreshold(chessCam, chessCam, 255, ADAPTIVE_THRESH_GAUSSIAN_C, THRESH_BINARY, 141, 20);
 	//	チェスパターンのカメラ座標取得 基本的に平面板がより大きく映っている
-	vector<Point2f> chessProCorners, chessCamCorners;
+	vector<Point2f> chessProCorners, chessCamCorners;		//	カメラ座標系から見た投影コーナーと実コーナー
 	bool proFound = getChessPoints(chessPro, chessProCorners);
 	//bool camFound = getChessPoints(chessCam, chessCamCorners);
 	cout << "チェスパターンを描画します．" << endl;
@@ -90,38 +91,42 @@ void CalibrationEngine::calibrateProCam(KinectV1 kinect)
 
 	//	5. カメラプロジェクタ間の外部校正
 	//	本当は3,4をやらないと2重に歪みの影響をうけてしまうが，次回までの課題とする
-	vector<Point2f>	chessCorners(CALIB_CB_CORNER_COLS*CALIB_CB_CORNER_ROWS);				//	プロジェクタ座標系でのコーナー座標
+	vector<Point2f>	chessCorners(CALIB_CB_CORNER_COLS*CALIB_CB_CORNER_ROWS);				//	プロジェクタ画面座標でのコーナー座標
+	float scaleProCam = (float)PROJECTOR_WINDOW_WIDTH / colorImg.cols;
 	for (int i = 0; i < CALIB_CB_CORNER_ROWS; i++)
 	{
 		for (int j = 0; j < CALIB_CB_CORNER_COLS; j++)
 		{
-			chessCorners.at(i * CALIB_CB_CORNER_COLS + j).x = j * CALIB_CB_SIZE;
-			chessCorners.at(i * CALIB_CB_CORNER_COLS + j).y = i * CALIB_CB_SIZE;
+			chessCorners.at(i * CALIB_CB_CORNER_COLS + j).x = ((j + 1) * chessSize + CALIB_DEFAULT_CHESS_ORIGIN_X);
+			chessCorners.at(i * CALIB_CB_CORNER_COLS + j).y = ((i + 1) * chessSize + CALIB_DEFAULT_CHESS_ORIGIN_Y);
 		}
 	}
-	Mat homography;
-	vector<Point2f> chess4Corners(4), chessPro4Corners(4);
+	Mat homography;				//	Cam -> Pro のホモグラフィ行列
+	vector<Point2f> 
+		chess4Corners(4),		//	プロジェクタ画面座標系の歪む前の四隅
+		chess4CornersFromCam(4);	//	カメラ画面座標系から見た歪んだ投影パターンの四隅
 	chess4Corners.at(0) = chessCorners.at(0);
-	chessPro4Corners.at(0) = chessProCorners.at(0);
+	chess4CornersFromCam.at(0) = chessProCorners.at(0);
 	
 	chess4Corners.at(1) = chessCorners.at(CALIB_CB_CORNER_COLS -1);
-	chessPro4Corners.at(1) = chessProCorners.at(CALIB_CB_CORNER_COLS -1);
+	chess4CornersFromCam.at(1) = chessProCorners.at(CALIB_CB_CORNER_COLS - 1);
 	
 	chess4Corners.at(3) = chessCorners.at((CALIB_CB_CORNER_ROWS - 1)*CALIB_CB_CORNER_COLS);
-	chessPro4Corners.at(3) = chessProCorners.at((CALIB_CB_CORNER_ROWS - 1)*CALIB_CB_CORNER_COLS);
+	chess4CornersFromCam.at(3) = chessProCorners.at((CALIB_CB_CORNER_ROWS - 1)*CALIB_CB_CORNER_COLS);
 	
 	chess4Corners.at(2) = chessCorners.at(CALIB_CB_CORNER_COLS*CALIB_CB_CORNER_ROWS - 1);
-	chessPro4Corners.at(2) = chessProCorners.at(CALIB_CB_CORNER_COLS*CALIB_CB_CORNER_ROWS - 1);
+	chess4CornersFromCam.at(2) = chessProCorners.at(CALIB_CB_CORNER_COLS*CALIB_CB_CORNER_ROWS - 1);
 	
-	homography = getPerspectiveTransform(chessPro4Corners, chess4Corners);
-	//homography = findHomography(chessProCorners, chessCorners, CV_RANSAC);
+	//homography = getPerspectiveTransform(chess4CornersFromCam, chess4Corners);
+	homography = findHomography(chessProCorners, chessCorners, CV_RANSAC);
+	homographyProCam = homography.clone();
 	if (!homography.empty())
 	{
 		Mat imgHomography;
-		warpPerspective(calibrationWindow, imgHomography, homography, calibrationWindow.size());
-		calibrationWindow = imgHomography.clone();
+		resize(calibrationWindow, imgHomography, colorImg.size());
+		imshow("projectorImg", imgHomography);
+		warpPerspective(imgHomography, calibrationWindow, homography, calibrationWindow.size());
 		imshow("calibWindow", calibrationWindow);
-		waitKey(40);
 	}
 	//	show current image
 	while (1)
@@ -132,7 +137,7 @@ void CalibrationEngine::calibrateProCam(KinectV1 kinect)
 		for (int i = 0; i < 4; i++)
 		{
 			circle(colorImg, chess4Corners.at(i), 3, Scalar(0, 0, 255));
-			circle(colorImg, chessPro4Corners.at(i), 3, Scalar(255, 0, 0));
+			circle(colorImg, chess4CornersFromCam.at(i), 3, Scalar(255, 0, 0));
 		}
 		imshow("確認用", colorImg);
 		kinect.releaseFrames();

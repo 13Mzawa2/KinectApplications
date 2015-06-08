@@ -24,6 +24,7 @@ public:
 	Mat chessYellow;
 	Mat calibrationWindow;
 	FullscreenWindow calib_fw;					//	プロジェクターでメニューバーを消去するための処理エンジン
+	Mat homographyProCam;						//	プロジェクタに投影する画像（画像サイズはカメラと同じ）と，それを撮影した画像の座標平面が一致するように変換するホモグラフィ行列
 
 	CalibrationEngine();
 	~CalibrationEngine();
