@@ -83,9 +83,14 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClInclude Include="..\include\KinectV1Adapter.h" />
+    <ClInclude Include="..\include\main.h" />
     <ClInclude Include="..\include\OpenCVAdapter.hpp" />
+    <ClInclude Include="CalibrationEngine.h" />
+    <ClInclude Include="FullscreenWindow.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="..\include\KinectV1Adapter.cpp" />
+    <ClCompile Include="CalibrationEngine.cpp" />
     <ClCompile Include="projectorPose.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

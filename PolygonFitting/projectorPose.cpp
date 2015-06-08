@@ -1,26 +1,5 @@
 //	Vizライブラリから利用するのに限界を感じたのでglutを利用してみるテスト
-
-#include "KinectV1Adapter.h"
-#include <gl\glut.h>
-
-KinectV1 kSensor;
-Mat cameraImg;
-Mat depthImg;
-Mat depthGrayImg;
-Mat cloudImg;
-
-//	距離に関するパラメータ　単位：m
-const double glZNear = 0.001;		//	カメラからの最小距離
-const double glZFar = 10.0;		//	カメラからの最大距離
-const int glFovy = 45;			//	カメラの視野角(degree)
-
-//	OpenGL操作のためのパラメータ
-int FormWidth = 640;
-int FormHeight = 480;
-int mButton;
-float twist, elevation, azimuth;
-float cameraDistance = 0, cameraX = 0, cameraY = 0;
-int xBegin, yBegin;
+#include "main.h"
 
 //視点変更
 void polarview()
@@ -39,7 +18,6 @@ void mainLoop()
 		0, 0, 0,				//	視点位置
 		0, 0, 10.0,				//	注視点
 		0, 1.0, 0);				//	画面の上を表すベクトル
-
 
 	//視点の変更
 	polarview();
@@ -74,11 +52,29 @@ void reshape(int w, int h)
 }
 void glutKeyEvent(unsigned char key, int x, int y)
 {
-	//	終了処理
-	if (key == VK_ESCAPE)	//	Esc
+	Mat chess;
+	switch (key)
 	{
+	//	キャリブレーション
+	case 'c':
+		cEngine.calibrateProCam(kSensor);
+		break;
+	//	チェスパターンを出力
+	case 'p':
+		cEngine.createChessPattern(chess, Scalar(255, 255, 0), Scalar(255, 255,255));
+		imwrite("chess7x10.png", chess);
+		break;
+	//	カメラの自動ホワイトバランス・露出設定
+	case 'a':
+		setcam();
+		break;
+
+	//	終了処理
+	case VK_ESCAPE:	//	Esc
 		exit(0);
+		break;
 	}
+
 }
 void glutMouseEvent(int button, int state, int x, int y)
 {
@@ -128,8 +124,8 @@ void glutIdleEvent()
 	kSensor.getColorFrame(cameraImg);
 	kSensor.getDepthFrameCoordinated(depthImg);
 	kSensor.cvtDepth2Gray(depthImg, depthGrayImg);
-	imshow("cam", cameraImg);
-	imshow("depth", depthGrayImg);
+	//imshow("cam", cameraImg);
+	//imshow("depth", depthGrayImg);
 	kSensor.cvtDepth2Cloud(depthImg, cloudImg);
 	kSensor.releaseFrames();
 	glutPostRedisplay();		//	再描画
@@ -166,5 +162,32 @@ int main(int argc, char** argv)
 	cv::destroyAllWindows();
 
 	return 0;
+
+}
+
+//------------------------------------------------
+//	UIのための関数群
+//------------------------------------------------
+void setcam()
+{
+	char yn = 0;
+	cout << "カメラの設定をします．" << endl
+		<< "現在の設定..." << endl;
+	if (kSensor.getAutoWhiteBalance())
+		cout << "自動ホワイトバランス：入" << endl;
+	else
+		cout << "自動ホワイトバランス：切" << endl;
+	cout << "現在の設定を変更しますか？(y/n)：";
+	cin >> yn;
+	kSensor.setAutoWhiteBalance((yn == 'y'));
+
+	if (kSensor.getAutoExposure())
+		cout << "自動露出：入" << endl;
+	else
+		cout << "自動露出：切" << endl;
+	cout << "現在の設定を変更しますか？(y/n)：";
+	cin >> yn;
+	kSensor.setAutoWhiteBalance((yn == 'y'));
+	cout << "設定を変更しました．" << endl;
 
 }
