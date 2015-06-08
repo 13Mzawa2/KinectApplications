@@ -30,7 +30,6 @@ public:
 	~CalibrationEngine();
 	void setup();
 	void calibrateProCam(KinectV1 kinect);		//	Cyan色チェッカーの平面版を用いたプロジェクタキャリブレーション(清田ら)
-	void rescaleChessPattern(KinectV1 kinect);
 	void createChessPattern(Mat &chess, Scalar color, Scalar backcolor = Scalar(0,0,0));
 	void splitChessPattern(Mat &srcImg, Mat &chessPro, Mat &chessCam);
 	bool getChessPoints(Mat chessImg, vector<Point2f> &corners);
