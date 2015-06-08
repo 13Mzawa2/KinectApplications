@@ -17,8 +17,15 @@ void CalibrationEngine::setup()
 	chessSize = CALIB_DEFAULT_CHESS_SIZE;
 
 	calibrationWindow = Mat(projectorWindowSize, CV_8UC3, Scalar(255, 255, 255));
+	//	使用するウィンドウの予約
 	namedWindow("calibWindow");
-	cout << "キャリブレーションを始めたいプロジェクタにウインドウを移動してください．" << endl;
+	namedWindow("確認用");
+	namedWindow("Projector");
+	//namedWindow("Camera");
+	namedWindow("ProjectionImg");
+	//	タイトルバーの消去
+	cout << "キャリブレーションを始めたいプロジェクタにウィンドウを移動してください．" << endl
+		<< "移動が終わったら何かキーを押してください．" << endl;
 	waitKey(0);
 	calib_fw.setFullscreen("calibWindow");
 
@@ -42,32 +49,31 @@ void CalibrationEngine::calibrateProCam(KinectV1 kinect)
 	Mat colorImg, chessPro, chessCam;
 	while (1)
 	{
+		Mat frame;
 		kinect.waitFrames();
-		kinect.getColorFrame(colorImg);
-		flip(colorImg, colorImg, 1);
+		kinect.getColorFrame(frame);
+		flip(frame, colorImg, 1);
 		imshow("確認用", colorImg);
 		kinect.releaseFrames();
 		if (waitKey(10) == ' ') break;
 	}
+	//	プロジェクタ用に拡大する前の画像
+	Mat imgHomography;
+	resize(calibrationWindow, imgHomography, colorImg.size());
+	imshow("ProjectionImg", imgHomography);
 	//	2. 入力画像の分離
 	//	チェスパターンの2値化
 	splitChessPattern(colorImg, chessPro, chessCam);
 	adaptiveThreshold(chessPro, chessPro, 255, ADAPTIVE_THRESH_GAUSSIAN_C, THRESH_BINARY, 141, 20);
 	morphologyEx(chessPro, chessPro, MORPH_OPEN, Mat(3, 3, CV_8U, cv::Scalar::all(255)), Point(-1, -1), 3);	//	opening
-	//adaptiveThreshold(chessCam, chessCam, 255, ADAPTIVE_THRESH_GAUSSIAN_C, THRESH_BINARY, 141, 20);
 	//	チェスパターンのカメラ座標取得 基本的に平面板がより大きく映っている
 	vector<Point2f> chessProCorners, chessCamCorners;		//	カメラ座標系から見た投影コーナーと実コーナー
 	bool proFound = getChessPoints(chessPro, chessProCorners);
-	//bool camFound = getChessPoints(chessCam, chessCamCorners);
 	cout << "チェスパターンを描画します．" << endl;
 	cvtColor(chessPro, chessPro, CV_GRAY2BGR);
-	//cvtColor(chessCam, chessCam, CV_GRAY2BGR);
 	drawChessboardCorners(chessPro, numChessPoint, chessProCorners, proFound);
-	//drawChessboardCorners(chessCam, numChessPoint, chessCamCorners, camFound);
 	imshow("Projector", chessPro);
-	//imshow("Camera", chessCam);
-	//imshow("確認用", colorImg);
-	if (!proFound/* || !camFound*/)
+	if (!proFound)
 	{
 		cout << "チェスパターンが見つかりませんでした．" << endl << endl;
 		waitKey(0);
@@ -91,6 +97,7 @@ void CalibrationEngine::calibrateProCam(KinectV1 kinect)
 
 	//	5. カメラプロジェクタ間の外部校正
 	//	本当は3,4をやらないと2重に歪みの影響をうけてしまうが，次回までの課題とする
+	cout << "カメラ‐プロジェクタ間のホモグラフィ行列を計算します．" << endl;
 	vector<Point2f>	chessCorners(CALIB_CB_CORNER_COLS*CALIB_CB_CORNER_ROWS);				//	プロジェクタ画面座標でのコーナー座標
 	float scaleProCam = (float)PROJECTOR_WINDOW_WIDTH / colorImg.cols;
 	for (int i = 0; i < CALIB_CB_CORNER_ROWS; i++)
@@ -122,9 +129,6 @@ void CalibrationEngine::calibrateProCam(KinectV1 kinect)
 	homographyProCam = homography.clone();
 	if (!homography.empty())
 	{
-		Mat imgHomography;
-		resize(calibrationWindow, imgHomography, colorImg.size());
-		imshow("projectorImg", imgHomography);
 		warpPerspective(imgHomography, calibrationWindow, homography, calibrationWindow.size());
 		imshow("calibWindow", calibrationWindow);
 	}
@@ -284,6 +288,7 @@ void CalibrationEngine::destroyAllCalibrationWindows()
 	destroyWindow("確認用");
 	destroyWindow("Projector");
 	destroyWindow("Camera");
+	destroyWindow("ProjectionImg");
 }
 
 double CalibrationEngine::getProCamRatio()
