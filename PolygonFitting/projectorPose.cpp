@@ -123,7 +123,7 @@ void glutIdleEvent()
 	kSensor.waitFrames();
 	kSensor.getColorFrame(cameraImg);
 	kSensor.getDepthFrameCoordinated(depthImg);
-	kSensor.cvtDepth2Gray(depthImg, depthGrayImg);
+	kSensor.cvtDepth2Color(depthImg, depthGrayImg);
 	//imshow("cam", cameraImg);
 	//imshow("depth", depthGrayImg);
 	kSensor.cvtDepth2Cloud(depthImg, cloudImg);

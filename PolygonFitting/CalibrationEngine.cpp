@@ -41,10 +41,13 @@ void CalibrationEngine::calibrateProCam(KinectV1 kinect)
 	Mat roiWindow = calibrationWindow(roi_rect);
 	chessYellow.copyTo(roiWindow);
 	imshow("calibWindow", calibrationWindow);
+	//	プロジェクタ用に拡大する前の画像
+	Mat imgHomography;
+	resize(calibrationWindow, imgHomography, Size(640, 480));
+	imshow("ProjectionImg", imgHomography);
 	//	1. 入力画像の撮影
 	//	投影したチェスパターンを撮影しながら位置と大きさを変更
-	cout << "投影パターンと平面板の両方が画角に収まっていることを確認してください．" << endl
-		<< "なるべくカメラ全体に平面板が写るように近づけてください．" << endl
+	cout << "投影パターン全体がカメラの画角に収まっていることを確認してください．" << endl
 		<< "確認が終わったらspaceキーを押してください．" << endl;
 	Mat colorImg, chessPro, chessCam;
 	while (1)
@@ -57,10 +60,6 @@ void CalibrationEngine::calibrateProCam(KinectV1 kinect)
 		kinect.releaseFrames();
 		if (waitKey(10) == ' ') break;
 	}
-	//	プロジェクタ用に拡大する前の画像
-	Mat imgHomography;
-	resize(calibrationWindow, imgHomography, colorImg.size());
-	imshow("ProjectionImg", imgHomography);
 	//	2. 入力画像の分離
 	//	チェスパターンの2値化
 	splitChessPattern(colorImg, chessPro, chessCam);
@@ -129,7 +128,7 @@ void CalibrationEngine::calibrateProCam(KinectV1 kinect)
 	homographyProCam = homography.clone();
 	if (!homography.empty())
 	{
-		warpPerspective(imgHomography, calibrationWindow, homography, calibrationWindow.size());
+		warpPerspective(imgHomography, calibrationWindow, homography, projectorWindowSize);
 		imshow("calibWindow", calibrationWindow);
 	}
 	//	show current image
@@ -149,6 +148,14 @@ void CalibrationEngine::calibrateProCam(KinectV1 kinect)
 	}
 	destroyAllCalibrationWindows();
 
+}
+
+void CalibrationEngine::warpCam2Pro(Mat &camImg, Mat &proImg)
+{
+	if (!homographyProCam.empty())
+	{
+		warpPerspective(camImg, proImg, homographyProCam, projectorWindowSize);
+	}
 }
 
 void CalibrationEngine::createChessPattern(Mat &chess, Scalar color, Scalar backcolor)
