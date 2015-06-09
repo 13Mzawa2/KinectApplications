@@ -4,7 +4,6 @@
 
 /*
 	pclを利用するためのリンカスクリプト
-	VTKのリンカ設定は当面使わないので除外
 	includeは必要なものを書き足していく
 
 	環境変数設定 (PCL v1.7.2 32bit vc120)
@@ -31,8 +30,12 @@
 #define PCLADAPTER_H_
 
 //	インクルード
-#include <pcl\io\pcd_io.h>
 #include <pcl\point_types.h>
+#include <pcl\io\pcd_io.h>
+#include <pcl\io\vtk_lib_io.h>
+#include <pcl\point_types.h>
+#include <pcl\visualization\cloud_viewer.h>
+#include <pcl\features\fpfh.h>
 
 // ビルドモード
 #ifdef _DEBUG

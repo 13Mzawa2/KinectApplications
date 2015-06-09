@@ -5,11 +5,13 @@
 #include "OpenCVAdapter.hpp"
 #include "PCLAdapter.h"
 #include "CalibrationEngine.h"
+#include "TrackingEngine.h"
 #include <gl\glut.h>
 #include "FullscreenWindow.h"
 
 KinectV1 kSensor;
 CalibrationEngine cEngine;
+TrackingEngine tEngine;
 Mat cameraImg;
 Mat depthImg;
 Mat depthGrayImg;
@@ -38,5 +40,6 @@ void glutIdleEvent();
 
 //	UIÇÃÇΩÇﬂÇÃä÷êî
 void setcam();
+bool import3DFile(string filename);
 
 #endif //	MAIN_H_

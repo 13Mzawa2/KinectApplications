@@ -88,11 +88,13 @@
     <ClInclude Include="..\include\PCLAdapter.h" />
     <ClInclude Include="CalibrationEngine.h" />
     <ClInclude Include="FullscreenWindow.h" />
+    <ClInclude Include="TrackingEngine.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\include\KinectV1Adapter.cpp" />
     <ClCompile Include="CalibrationEngine.cpp" />
     <ClCompile Include="main.cpp" />
+    <ClCompile Include="TrackingEngine.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

@@ -68,7 +68,9 @@ void glutKeyEvent(unsigned char key, int x, int y)
 	case 'a':
 		setcam();
 		break;
-
+	case 'i':
+		import3DFile("drop_x001.stl");
+		break;
 	//	終了処理
 	case VK_ESCAPE:	//	Esc
 		exit(0);
@@ -191,4 +193,20 @@ void setcam()
 	kSensor.setAutoWhiteBalance((yn == 'y'));
 	cout << "設定を変更しました．" << endl;
 
+}
+
+bool import3DFile(string filename)
+{
+	if (tEngine.importSTLFile(filename) == -1)
+	{
+		cout << filename << "が正常にインポートできませんでした．" << endl;
+		return false;
+	}
+	else
+	{
+		cout << filename << "をインポートしました．" << endl
+			<< "頂点数：" << tEngine.mesh.cloud.width * tEngine.mesh.cloud.height << endl;
+		tEngine.showLoadedMesh("Imported 3D File");
+		return true;
+	}
 }
