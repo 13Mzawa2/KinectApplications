@@ -2,6 +2,8 @@
 #define MAIN_H_
 
 #include "KinectV1Adapter.h"
+#include "OpenCVAdapter.hpp"
+#include "PCLAdapter.h"
 #include "CalibrationEngine.h"
 #include <gl\glut.h>
 #include "FullscreenWindow.h"

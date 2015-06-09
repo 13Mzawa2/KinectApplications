@@ -41,13 +41,13 @@
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <LinkIncremental>true</LinkIncremental>
-    <IncludePath>../include;$(OPENCV_INC);$(KINECTSDK10_DIR)inc;$(VC_IncludePath);$(WindowsSDK_IncludePath);</IncludePath>
-    <LibraryPath>$(OPENCV_LIB);$(KINECTSDK10_DIR)lib\x86;$(VC_LibraryPath_x86);$(WindowsSDK_LibraryPath_x86);</LibraryPath>
+    <IncludePath>$(PCL_INC);../include;$(OPENCV_INC);$(KINECTSDK10_DIR)inc;$(VC_IncludePath);$(WindowsSDK_IncludePath)</IncludePath>
+    <LibraryPath>$(PCL_LIB);$(OPENCV_LIB);$(KINECTSDK10_DIR)lib\x86;$(VC_LibraryPath_x86);$(WindowsSDK_LibraryPath_x86)</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <LinkIncremental>false</LinkIncremental>
-    <IncludePath>../include;$(OPENCV_INC);$(KINECTSDK10_DIR)inc;$(VC_IncludePath);$(WindowsSDK_IncludePath);</IncludePath>
-    <LibraryPath>$(OPENCV_LIB);$(KINECTSDK10_DIR)lib\x86;$(VC_LibraryPath_x86);$(WindowsSDK_LibraryPath_x86);</LibraryPath>
+    <IncludePath>$(PCL_INC);../include;$(OPENCV_INC);$(KINECTSDK10_DIR)inc;$(VC_IncludePath);$(WindowsSDK_IncludePath)</IncludePath>
+    <LibraryPath>$(PCL_LIB);$(OPENCV_LIB);$(KINECTSDK10_DIR)lib\x86;$(VC_LibraryPath_x86);$(WindowsSDK_LibraryPath_x86)</LibraryPath>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
@@ -85,13 +85,14 @@
     <ClInclude Include="..\include\KinectV1Adapter.h" />
     <ClInclude Include="..\include\main.h" />
     <ClInclude Include="..\include\OpenCVAdapter.hpp" />
+    <ClInclude Include="..\include\PCLAdapter.h" />
     <ClInclude Include="CalibrationEngine.h" />
     <ClInclude Include="FullscreenWindow.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\include\KinectV1Adapter.cpp" />
     <ClCompile Include="CalibrationEngine.cpp" />
-    <ClCompile Include="projectorPose.cpp" />
+    <ClCompile Include="main.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
