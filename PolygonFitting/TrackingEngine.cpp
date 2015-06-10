@@ -3,6 +3,9 @@
 
 TrackingEngine::TrackingEngine()
 {
+	fpfh_mesh = PointCloud<FPFHSignature33>::Ptr(new PointCloud<FPFHSignature33>());
+	harris_keypoints_mesh = PointCloud<PointXYZI>::Ptr(new PointCloud<PointXYZI>());
+	harris_keypoints3D_mesh = PointCloud<PointXYZ>::Ptr(new PointCloud<PointXYZ>());
 }
 
 
@@ -25,18 +28,15 @@ void TrackingEngine::showLoadedMesh(std::string windowname)
 	
 	//	色設定
 	visualization::PointCloudColorHandlerCustom<PointXYZ> pcColor(pcd_ptr, 255, 255, 255);
-	visualization::PointCloudColorHandlerCustom<PointXYZ> kpColor(harris_keypoints3D_mesh, 255, 255, 255);
+	visualization::PointCloudColorHandlerCustom<PointXYZ> kpColor(harris_keypoints3D_mesh, 255, 0, 0);
 
 	//	PointCloudの追加
 	viewer.addPointCloud(pcd_ptr, pcColor, "PointCloud.png");
 	viewer.addPointCloud(harris_keypoints3D_mesh, kpColor, "Keypoints.png");
 	viewer.setPointCloudRenderingProperties(visualization::PCL_VISUALIZER_POINT_SIZE, 7, "Keypoints.png");
 
-	while (!viewer.wasStopped())
-	{
-		viewer.spinOnce();
-		pcl_sleep(0.01);
-	}
+	viewer.spinOnce(1000);			//	glutと競合しているのか消えてくれないっぽい
+	
 }
 
 //	読み込んだ3DデータのFPFH特徴点を抽出

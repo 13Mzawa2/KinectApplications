@@ -6,7 +6,7 @@ using namespace pcl;
 using namespace pcl::io;
 
 #define TRACKING_FPFH_RADIUS 0.05
-#define TRACKING_HARRIS_RADIUS 0.03
+#define TRACKING_HARRIS_RADIUS 10.0
 
 class TrackingEngine
 {
