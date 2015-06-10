@@ -15,7 +15,7 @@
 #include	<opencv2/viz.hpp>
 
 using namespace std;
-using namespace cv;
+//using namespace cv;
 
 // ƒo[ƒWƒ‡ƒ“æ“¾
 #define CV_VERSION_STR CVAUX_STR(CV_MAJOR_VERSION) CVAUX_STR(CV_MINOR_VERSION) CVAUX_STR(CV_SUBMINOR_VERSION)

@@ -1,5 +1,7 @@
 #include "KinectV1Adapter.h"
 
+using namespace cv;
+
 KinectV1::KinectV1()
 {
 	setup(

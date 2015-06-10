@@ -1,6 +1,8 @@
 //	Vizライブラリから利用するのに限界を感じたのでglutを利用してみるテスト
 #include "main.h"
 
+using namespace cv;
+
 //視点変更
 void polarview()
 {
@@ -205,7 +207,8 @@ bool import3DFile(string filename)
 	else
 	{
 		cout << filename << "をインポートしました．" << endl
-			<< "頂点数：" << tEngine.mesh.cloud.width * tEngine.mesh.cloud.height << endl;
+			<< "頂点数：" << tEngine.numCloudPoints() << endl;
+		tEngine.getHarrisKeypointsFromLoadedMesh();
 		tEngine.showLoadedMesh("Imported 3D File");
 		return true;
 	}

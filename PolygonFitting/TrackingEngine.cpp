@@ -15,20 +15,92 @@ int TrackingEngine::importSTLFile(std::string filename)
 	return io::loadPolygonFileSTL(filename, mesh);
 }
 
+//	読み込んだ3Dデータの点群と特徴点を表示
 void TrackingEngine::showLoadedMesh(std::string windowname)
 {
-	visualization::CloudViewer viewer(windowname);
+	//	viewer
+	visualization::PCLVisualizer viewer(windowname);
 	boost::shared_ptr<PointCloud<PointXYZ>> pcd_ptr(new PointCloud<PointXYZ>);
 	fromPCLPointCloud2(mesh.cloud, *pcd_ptr);
-	viewer.showCloud(pcd_ptr);
-	while (!viewer.wasStopped()) {
+	
+	//	色設定
+	visualization::PointCloudColorHandlerCustom<PointXYZ> pcColor(pcd_ptr, 255, 255, 255);
+	visualization::PointCloudColorHandlerCustom<PointXYZ> kpColor(harris_keypoints3D_mesh, 255, 255, 255);
+
+	//	PointCloudの追加
+	viewer.addPointCloud(pcd_ptr, pcColor, "PointCloud.png");
+	viewer.addPointCloud(harris_keypoints3D_mesh, kpColor, "Keypoints.png");
+	viewer.setPointCloudRenderingProperties(visualization::PCL_VISUALIZER_POINT_SIZE, 7, "Keypoints.png");
+
+	while (!viewer.wasStopped())
+	{
+		viewer.spinOnce();
+		pcl_sleep(0.01);
 	}
 }
 
-void TrackingEngine::getFPFHFeature()
+//	読み込んだ3DデータのFPFH特徴点を抽出
+void TrackingEngine::getLoadedMeshFPFHFeature()
 {
-	PointCloud<PointXYZ> cloud;
-	PointCloud<PointNormal> normals;
-	fromPCLPointCloud2(mesh.cloud, cloud);
-	
+	//	点群データ，法線データの用意
+	PointCloud<PointXYZ>::Ptr cloud(new PointCloud<PointXYZ>());
+	PointCloud<Normal>::Ptr normals(new PointCloud<Normal>());
+	fromPCLPointCloud2(mesh.cloud, *cloud);
+	fromPCLPointCloud2(mesh.cloud, *normals);
+	//	FPFH特徴推定器の用意，点群データのロード
+	FPFHEstimation<PointXYZ, Normal, FPFHSignature33> fpfh;
+	fpfh.setInputCloud(cloud);
+	fpfh.setInputNormals(normals);
+	//	kdtreeメソッドを探索アルゴリズムに設定
+	search::KdTree<PointXYZ>::Ptr tree(new search::KdTree<PointXYZ>());
+	fpfh.setSearchMethod(tree);
+	//	特徴記述の半径を設定
+	fpfh.setRadiusSearch(TRACKING_FPFH_RADIUS);
+	//	特徴量計算
+	fpfh.compute(*fpfh_mesh);
 }
+
+//	3Dデータの頂点数
+int TrackingEngine::numCloudPoints()
+{
+	return mesh.cloud.width * mesh.cloud.height;
+}
+
+//	点群からの法線推定
+//	ただしビューポイント側を向いていない法線は反転
+void TrackingEngine::estimateNormal(PointCloud<PointXYZ>::Ptr &cloud, PointCloud<PointNormal>::Ptr &normal, int kSearch = 20)
+{
+	NormalEstimation<PointXYZ, PointNormal> ne;		//	法線推定器
+	ne.setInputCloud(cloud);
+	//	探索メソッドの設定
+	search::KdTree<PointXYZ>::Ptr tree(new search::KdTree<PointXYZ>());
+	tree->setInputCloud(cloud);
+	ne.setSearchMethod(tree);
+
+	//	出力
+	ne.setKSearch(kSearch);
+	ne.compute(*normal);
+}
+
+//	読み込んだデータからHarris特徴点を抽出
+void TrackingEngine::getHarrisKeypointsFromLoadedMesh()
+{
+	//	点群データ，法線データの用意
+	PointCloud<PointXYZ>::Ptr cloud(new PointCloud<PointXYZ>());
+	fromPCLPointCloud2(mesh.cloud, *cloud);
+	//	Harris特徴検出器の用意
+	HarrisKeypoint3D<PointXYZ, PointXYZI> detector;
+	detector.setNonMaxSupression(true);
+	detector.setRadius(TRACKING_HARRIS_RADIUS);
+	detector.setInputCloud(cloud);
+	detector.compute(*harris_keypoints_mesh);
+	cout << "keypoints detected: " << harris_keypoints_mesh->size() << endl;
+	//	Visualize用Harris特徴点の用意
+	PointXYZ temp;
+	for (PointCloud<PointXYZI>::iterator it = harris_keypoints_mesh->begin(); it != harris_keypoints_mesh->end(); it++)
+	{
+		temp = PointXYZ((*it).x, (*it).y, (*it).z);
+		harris_keypoints3D_mesh->push_back(temp);
+	}
+}
+

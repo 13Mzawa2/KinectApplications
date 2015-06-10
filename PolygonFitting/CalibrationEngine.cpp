@@ -1,5 +1,6 @@
 #include "CalibrationEngine.h"
 
+using namespace cv;
 
 CalibrationEngine::CalibrationEngine()
 {

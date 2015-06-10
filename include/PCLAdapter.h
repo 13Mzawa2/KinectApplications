@@ -21,7 +21,7 @@
 		C:\Program Files (x86)\PCL 1.7.2\3rdParty\Boost\lib;
 		C:\Program Files (x86)\PCL 1.7.2\3rdParty\FLANN\lib;
 		C:\Program Files (x86)\PCL 1.7.2\3rdParty\Qhull\lib;
-		C:\Program Files (x86)\PCL 1.7.2\3rdParty\VTK\lib\vtk-6.2;
+		C:\Program Files (x86)\PCL 1.7.2\3rdParty\VTK\lib;
 
 */
 
@@ -31,11 +31,13 @@
 
 //	インクルード
 #include <pcl\point_types.h>
+#include <pcl\common\io.h>
 #include <pcl\io\pcd_io.h>
 #include <pcl\io\vtk_lib_io.h>
-#include <pcl\point_types.h>
 #include <pcl\visualization\cloud_viewer.h>
+#include <pcl\keypoints\harris_3d.h>
 #include <pcl\features\fpfh.h>
+#include <pcl\features\normal_3d.h>
 
 // ビルドモード
 #ifdef _DEBUG
@@ -113,6 +115,116 @@
 #pragma comment(lib, "qhullcpp"	PCL_QHULL_EXT_STR)
 #pragma comment(lib, "qhullstatic"	PCL_QHULL_EXT_STR)
 #pragma comment(lib, "qhullstatic_p"	PCL_QHULL_EXT_STR)
+
+#pragma comment(lib, "vtkalglib"	PCL_VTK_EXT_STR)
+#pragma comment(lib, "vtkChartsCore"	PCL_VTK_EXT_STR)
+#pragma comment(lib, "vtkCommonColor"	PCL_VTK_EXT_STR)
+#pragma comment(lib, "vtkCommonComputationalGeometry"	PCL_VTK_EXT_STR)
+#pragma comment(lib, "vtkCommonCore"	PCL_VTK_EXT_STR)
+#pragma comment(lib, "vtkCommonDataModel"	PCL_VTK_EXT_STR)
+#pragma comment(lib, "vtkCommonExecutionModel"	PCL_VTK_EXT_STR)
+#pragma comment(lib, "vtkCommonMath"	PCL_VTK_EXT_STR)
+#pragma comment(lib, "vtkCommonMisc"	PCL_VTK_EXT_STR)
+#pragma comment(lib, "vtkCommonSystem"	PCL_VTK_EXT_STR)
+#pragma comment(lib, "vtkCommonTransforms"	PCL_VTK_EXT_STR)
+#pragma comment(lib, "vtkDICOMParser"	PCL_VTK_EXT_STR)
+#pragma comment(lib, "vtkDomainsChemistry"	PCL_VTK_EXT_STR)
+#pragma comment(lib, "vtkexoIIc"	PCL_VTK_EXT_STR)
+#pragma comment(lib, "vtkexpat"	PCL_VTK_EXT_STR)
+#pragma comment(lib, "vtkFiltersAMR"	PCL_VTK_EXT_STR)
+#pragma comment(lib, "vtkFiltersCore"	PCL_VTK_EXT_STR)
+#pragma comment(lib, "vtkFiltersExtraction"	PCL_VTK_EXT_STR)
+#pragma comment(lib, "vtkFiltersFlowPaths"	PCL_VTK_EXT_STR)
+#pragma comment(lib, "vtkFiltersGeneral"	PCL_VTK_EXT_STR)
+#pragma comment(lib, "vtkFiltersGeneric"	PCL_VTK_EXT_STR)
+#pragma comment(lib, "vtkFiltersGeometry"	PCL_VTK_EXT_STR)
+#pragma comment(lib, "vtkFiltersHybrid"	PCL_VTK_EXT_STR)
+#pragma comment(lib, "vtkFiltersHyperTree"	PCL_VTK_EXT_STR)
+#pragma comment(lib, "vtkFiltersImaging"	PCL_VTK_EXT_STR)
+#pragma comment(lib, "vtkFiltersModeling"	PCL_VTK_EXT_STR)
+#pragma comment(lib, "vtkFiltersParallel"	PCL_VTK_EXT_STR)
+#pragma comment(lib, "vtkFiltersParallelImaging"	PCL_VTK_EXT_STR)
+#pragma comment(lib, "vtkFiltersProgrammable"	PCL_VTK_EXT_STR)
+#pragma comment(lib, "vtkFiltersSelection"	PCL_VTK_EXT_STR)
+#pragma comment(lib, "vtkFiltersSMP"	PCL_VTK_EXT_STR)
+#pragma comment(lib, "vtkFiltersSources"	PCL_VTK_EXT_STR)
+#pragma comment(lib, "vtkFiltersStatistics"	PCL_VTK_EXT_STR)
+#pragma comment(lib, "vtkFiltersTexture"	PCL_VTK_EXT_STR)
+#pragma comment(lib, "vtkFiltersVerdict"	PCL_VTK_EXT_STR)
+#pragma comment(lib, "vtkfreetype"	PCL_VTK_EXT_STR)
+#pragma comment(lib, "vtkftgl"	PCL_VTK_EXT_STR)
+#pragma comment(lib, "vtkGeovisCore"	PCL_VTK_EXT_STR)
+#pragma comment(lib, "vtkgl2ps"	PCL_VTK_EXT_STR)
+#pragma comment(lib, "vtkhdf5_hl"	PCL_VTK_EXT_STR)
+#pragma comment(lib, "vtkhdf5"	PCL_VTK_EXT_STR)
+#pragma comment(lib, "vtkImagingColor"	PCL_VTK_EXT_STR)
+#pragma comment(lib, "vtkImagingCore"	PCL_VTK_EXT_STR)
+#pragma comment(lib, "vtkImagingFourier"	PCL_VTK_EXT_STR)
+#pragma comment(lib, "vtkImagingGeneral"	PCL_VTK_EXT_STR)
+#pragma comment(lib, "vtkImagingHybrid"	PCL_VTK_EXT_STR)
+#pragma comment(lib, "vtkImagingMath"	PCL_VTK_EXT_STR)
+#pragma comment(lib, "vtkImagingMorphological"	PCL_VTK_EXT_STR)
+#pragma comment(lib, "vtkImagingSources"	PCL_VTK_EXT_STR)
+#pragma comment(lib, "vtkImagingStatistics"	PCL_VTK_EXT_STR)
+#pragma comment(lib, "vtkImagingStencil"	PCL_VTK_EXT_STR)
+#pragma comment(lib, "vtkInfovisCore"	PCL_VTK_EXT_STR)
+#pragma comment(lib, "vtkInfovisLayout"	PCL_VTK_EXT_STR)
+#pragma comment(lib, "vtkInteractionImage"	PCL_VTK_EXT_STR)
+#pragma comment(lib, "vtkInteractionStyle"	PCL_VTK_EXT_STR)
+#pragma comment(lib, "vtkInteractionWidgets"	PCL_VTK_EXT_STR)
+#pragma comment(lib, "vtkIOAMR"	PCL_VTK_EXT_STR)
+#pragma comment(lib, "vtkIOCore"	PCL_VTK_EXT_STR)
+#pragma comment(lib, "vtkIOEnSight"	PCL_VTK_EXT_STR)
+#pragma comment(lib, "vtkIOExodus"	PCL_VTK_EXT_STR)
+#pragma comment(lib, "vtkIOExport"	PCL_VTK_EXT_STR)
+#pragma comment(lib, "vtkIOGeometry"	PCL_VTK_EXT_STR)
+#pragma comment(lib, "vtkIOImage"	PCL_VTK_EXT_STR)
+#pragma comment(lib, "vtkIOImport"	PCL_VTK_EXT_STR)
+#pragma comment(lib, "vtkIOInfovis"	PCL_VTK_EXT_STR)
+#pragma comment(lib, "vtkIOLegacy"	PCL_VTK_EXT_STR)
+#pragma comment(lib, "vtkIOLSDyna"	PCL_VTK_EXT_STR)
+#pragma comment(lib, "vtkIOMinc"	PCL_VTK_EXT_STR)
+#pragma comment(lib, "vtkIOMovie"	PCL_VTK_EXT_STR)
+#pragma comment(lib, "vtkIONetCDF"	PCL_VTK_EXT_STR)
+#pragma comment(lib, "vtkIOParallel"	PCL_VTK_EXT_STR)
+#pragma comment(lib, "vtkIOParallelXML"	PCL_VTK_EXT_STR)
+#pragma comment(lib, "vtkIOPLY"	PCL_VTK_EXT_STR)
+#pragma comment(lib, "vtkIOSQL"	PCL_VTK_EXT_STR)
+#pragma comment(lib, "vtkIOVideo"	PCL_VTK_EXT_STR)
+#pragma comment(lib, "vtkIOXML"	PCL_VTK_EXT_STR)
+#pragma comment(lib, "vtkIOXMLParser"	PCL_VTK_EXT_STR)
+#pragma comment(lib, "vtkjpeg"	PCL_VTK_EXT_STR)
+#pragma comment(lib, "vtkjsoncpp"	PCL_VTK_EXT_STR)
+#pragma comment(lib, "vtklibxml2"	PCL_VTK_EXT_STR)
+#pragma comment(lib, "vtkmetaio"	PCL_VTK_EXT_STR)
+#pragma comment(lib, "vtkNetCDF_cxx"	PCL_VTK_EXT_STR)
+#pragma comment(lib, "vtkNetCDF"	PCL_VTK_EXT_STR)
+#pragma comment(lib, "vtkoggtheora"	PCL_VTK_EXT_STR)
+#pragma comment(lib, "vtkParallelCore"	PCL_VTK_EXT_STR)
+#pragma comment(lib, "vtkpng"	PCL_VTK_EXT_STR)
+#pragma comment(lib, "vtkproj4"	PCL_VTK_EXT_STR)
+#pragma comment(lib, "vtkRenderingAnnotation"	PCL_VTK_EXT_STR)
+#pragma comment(lib, "vtkRenderingContext2D"	PCL_VTK_EXT_STR)
+#pragma comment(lib, "vtkRenderingContextOpenGL"	PCL_VTK_EXT_STR)
+#pragma comment(lib, "vtkRenderingCore"	PCL_VTK_EXT_STR)
+#pragma comment(lib, "vtkRenderingFreeType"	PCL_VTK_EXT_STR)
+#pragma comment(lib, "vtkRenderingFreeTypeOpenGL"	PCL_VTK_EXT_STR)
+#pragma comment(lib, "vtkRenderingGL2PS"	PCL_VTK_EXT_STR)
+#pragma comment(lib, "vtkRenderingImage"	PCL_VTK_EXT_STR)
+#pragma comment(lib, "vtkRenderingLabel"	PCL_VTK_EXT_STR)
+#pragma comment(lib, "vtkRenderingLIC"	PCL_VTK_EXT_STR)
+#pragma comment(lib, "vtkRenderingLOD"	PCL_VTK_EXT_STR)
+#pragma comment(lib, "vtkRenderingOpenGL"	PCL_VTK_EXT_STR)
+#pragma comment(lib, "vtkRenderingVolume"	PCL_VTK_EXT_STR)
+#pragma comment(lib, "vtkRenderingVolumeOpenGL"	PCL_VTK_EXT_STR)
+#pragma comment(lib, "vtksqlite"	PCL_VTK_EXT_STR)
+#pragma comment(lib, "vtksys"	PCL_VTK_EXT_STR)
+#pragma comment(lib, "vtktiff"	PCL_VTK_EXT_STR)
+#pragma comment(lib, "vtkverdict"	PCL_VTK_EXT_STR)
+#pragma comment(lib, "vtkViewsContext2D"	PCL_VTK_EXT_STR)
+#pragma comment(lib, "vtkViewsCore"	PCL_VTK_EXT_STR)
+#pragma comment(lib, "vtkViewsInfovis"	PCL_VTK_EXT_STR)
+#pragma comment(lib, "vtkzlib"	PCL_VTK_EXT_STR)
 
 
 #endif // PCLADAPTER_H_

@@ -111,7 +111,7 @@ public:
 	void cvtDepth2Gray(cv::Mat& depthMat, cv::Mat& grayMat);
 	void cvtDepth2Color(cv::Mat& depthMat, cv::Mat& colorMat);
 	void depthShading(cv::Mat& depthMat, cv::Mat& srcMat, cv::Mat& dstMat);
-	void cvtDepth2Cloud(Mat &depthMat, Mat &cloudMat);
+	void cvtDepth2Cloud(cv::Mat &depthMat, cv::Mat &cloudMat);
 	//	èIóπèàóù
 	void releaseFrames();
 	void shutdown();

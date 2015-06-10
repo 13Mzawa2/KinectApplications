@@ -17,24 +17,24 @@
 class CalibrationEngine
 {
 public:
-	Size numChessPoint;							//	カウントは左上から下->右の順
-	Size projectorWindowSize;
+	cv::Size numChessPoint;							//	カウントは左上から下->右の順
+	cv::Size projectorWindowSize;
 	int chessSize;								//	チェスボードの賽の目サイズ
-	Point chessRectPoint;						//	チェスボードの左上座標
-	Mat chessYellow;
-	Mat calibrationWindow;
+	cv::Point chessRectPoint;						//	チェスボードの左上座標
+	cv::Mat chessYellow;
+	cv::Mat calibrationWindow;
 	FullscreenWindow calib_fw;					//	プロジェクターでメニューバーを消去するための処理エンジン
-	Mat homographyProCam;						//	プロジェクタに投影する画像（画像サイズはカメラと同じ）と，それを撮影した画像の座標平面が一致するように変換するホモグラフィ行列
+	cv::Mat homographyProCam;						//	プロジェクタに投影する画像（画像サイズはカメラと同じ）と，それを撮影した画像の座標平面が一致するように変換するホモグラフィ行列
 
 	CalibrationEngine();
 	~CalibrationEngine();
 	void setup();
 	void calibrateProCam(KinectV1 kinect);			//	チェッカーパターンを投影してホモグラフィ行列を得る
-	void warpCam2Pro(Mat &camImg, Mat &proImg);		//	カメラ画像をプロジェクタ投影用の画像に変換する
-	void createChessPattern(Mat &chess, Scalar color, Scalar backcolor = Scalar(0,0,0));
-	void splitChessPattern(Mat &srcImg, Mat &chessPro, Mat &chessCam);
-	bool getChessPoints(Mat chessImg, vector<Point2f> &corners);
-	double distance(Point2f p1, Point2f p2);
+	void warpCam2Pro(cv::Mat &camImg, cv::Mat &proImg);		//	カメラ画像をプロジェクタ投影用の画像に変換する
+	void createChessPattern(cv::Mat &chess, cv::Scalar color, cv::Scalar backcolor = cv::Scalar(0,0,0));
+	void splitChessPattern(cv::Mat &srcImg, cv::Mat &chessPro, cv::Mat &chessCam);
+	bool getChessPoints(cv::Mat chessImg, vector<cv::Point2f> &corners);
+	double distance(cv::Point2f p1, cv::Point2f p2);
 	void destroyAllCalibrationWindows(void);
 	double getProCamRatio();
 };

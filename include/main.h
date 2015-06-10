@@ -2,8 +2,8 @@
 #define MAIN_H_
 
 #include "KinectV1Adapter.h"
-#include "OpenCVAdapter.hpp"
 #include "PCLAdapter.h"
+#include "OpenCVAdapter.hpp"
 #include "CalibrationEngine.h"
 #include "TrackingEngine.h"
 #include <gl\glut.h>
@@ -12,10 +12,10 @@
 KinectV1 kSensor;
 CalibrationEngine cEngine;
 TrackingEngine tEngine;
-Mat cameraImg;
-Mat depthImg;
-Mat depthGrayImg;
-Mat cloudImg;
+cv::Mat cameraImg;
+cv::Mat depthImg;
+cv::Mat depthGrayImg;
+cv::Mat cloudImg;
 
 //	距離に関するパラメータ　単位：m
 const double glZNear = 0.001;		//	カメラからの最小距離
