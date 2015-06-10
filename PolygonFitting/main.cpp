@@ -70,8 +70,13 @@ void glutKeyEvent(unsigned char key, int x, int y)
 	case 'a':
 		setcam();
 		break;
+	//	STLファイルのインポート
 	case 'i':
 		import3DFile("drop_x001.stl");
+		break;
+	//	トラッキング開始フラグ
+	case 't':
+		isTracking = !isTracking;
 		break;
 	//	終了処理
 	case VK_ESCAPE:	//	Esc
@@ -148,7 +153,7 @@ int main(int argc, char** argv)
 	glutInitWindowPosition(100, 100);
 	glutInitWindowSize(640, 480);
 	glutInitDisplayMode(GLUT_RGBA | GLUT_DEPTH | GLUT_DOUBLE);
-	glutCreateWindow("test");
+	glutCreateWindow("Main Window");
 
 	//	コールバック関数登録
 	glutDisplayFunc(mainLoop);

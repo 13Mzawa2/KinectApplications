@@ -15,7 +15,13 @@ TrackingEngine::~TrackingEngine()
 
 int TrackingEngine::importSTLFile(std::string filename)
 {
-	return io::loadPolygonFileSTL(filename, mesh);
+	int result = io::loadPolygonFileSTL(filename, mesh);
+	if (result != -1)
+	{
+		cloud_mesh = PointCloud<PointXYZ>::Ptr(new PointCloud<PointXYZ>());
+		fromPCLPointCloud2(mesh.cloud, *cloud_mesh);
+	}
+	return result;
 }
 
 //	読み込んだ3Dデータの点群と特徴点を表示
@@ -23,15 +29,13 @@ void TrackingEngine::showLoadedMesh(std::string windowname)
 {
 	//	viewer
 	visualization::PCLVisualizer viewer(windowname);
-	boost::shared_ptr<PointCloud<PointXYZ>> pcd_ptr(new PointCloud<PointXYZ>);
-	fromPCLPointCloud2(mesh.cloud, *pcd_ptr);
 	
 	//	色設定
-	visualization::PointCloudColorHandlerCustom<PointXYZ> pcColor(pcd_ptr, 255, 255, 255);
+	visualization::PointCloudColorHandlerCustom<PointXYZ> pcColor(cloud_mesh, 255, 255, 255);
 	visualization::PointCloudColorHandlerCustom<PointXYZ> kpColor(harris_keypoints3D_mesh, 255, 0, 0);
 
 	//	PointCloudの追加
-	viewer.addPointCloud(pcd_ptr, pcColor, "PointCloud.png");
+	viewer.addPointCloud(cloud_mesh, pcColor, "PointCloud.png");
 	viewer.addPointCloud(harris_keypoints3D_mesh, kpColor, "Keypoints.png");
 	viewer.setPointCloudRenderingProperties(visualization::PCL_VISUALIZER_POINT_SIZE, 7, "Keypoints.png");
 
@@ -43,13 +47,11 @@ void TrackingEngine::showLoadedMesh(std::string windowname)
 void TrackingEngine::getLoadedMeshFPFHFeature()
 {
 	//	点群データ，法線データの用意
-	PointCloud<PointXYZ>::Ptr cloud(new PointCloud<PointXYZ>());
 	PointCloud<Normal>::Ptr normals(new PointCloud<Normal>());
-	fromPCLPointCloud2(mesh.cloud, *cloud);
 	fromPCLPointCloud2(mesh.cloud, *normals);
 	//	FPFH特徴推定器の用意，点群データのロード
 	FPFHEstimation<PointXYZ, Normal, FPFHSignature33> fpfh;
-	fpfh.setInputCloud(cloud);
+	fpfh.setInputCloud(cloud_mesh);
 	fpfh.setInputNormals(normals);
 	//	kdtreeメソッドを探索アルゴリズムに設定
 	search::KdTree<PointXYZ>::Ptr tree(new search::KdTree<PointXYZ>());
@@ -85,14 +87,11 @@ void TrackingEngine::estimateNormal(PointCloud<PointXYZ>::Ptr &cloud, PointCloud
 //	読み込んだデータからHarris特徴点を抽出
 void TrackingEngine::getHarrisKeypointsFromLoadedMesh()
 {
-	//	点群データ，法線データの用意
-	PointCloud<PointXYZ>::Ptr cloud(new PointCloud<PointXYZ>());
-	fromPCLPointCloud2(mesh.cloud, *cloud);
 	//	Harris特徴検出器の用意
 	HarrisKeypoint3D<PointXYZ, PointXYZI> detector;
 	detector.setNonMaxSupression(true);
 	detector.setRadius(TRACKING_HARRIS_RADIUS);
-	detector.setInputCloud(cloud);
+	detector.setInputCloud(cloud_mesh);
 	detector.compute(*harris_keypoints_mesh);
 	cout << "keypoints detected: " << harris_keypoints_mesh->size() << endl;
 	//	Visualize用Harris特徴点の用意
@@ -104,3 +103,23 @@ void TrackingEngine::getHarrisKeypointsFromLoadedMesh()
 	}
 }
 
+//	OpenCVのcv::Matで保持している点群データをPointCloud型に変換
+void TrackingEngine::loadPointCloudData(cv::Mat cloudMat, cv::Mat colorMat)
+{
+	kinectpoints = PointCloud<PointXYZRGB>::Ptr(new PointCloud<PointXYZRGB>());
+	for (int y = 0; y < cloudMat.rows; y++)
+	{
+		for (int x = 0; x < cloudMat.cols; x++)
+		{
+			PointXYZRGB temp;
+			cv::Vec3f cloudPoint = cloudMat.at<cv::Vec3f>(y, x);
+			temp.x = cloudPoint[0];
+			temp.y = cloudPoint[1];
+			temp.z = cloudPoint[2];
+			temp.r = matR(colorMat, x, y);
+			temp.g = matG(colorMat, x, y);
+			temp.b = matB(colorMat, x, y);
+			kinectpoints->points.push_back(temp);
+		}
+	}
+}

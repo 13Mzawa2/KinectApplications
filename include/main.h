@@ -30,6 +30,9 @@ float twist, elevation, azimuth;
 float cameraDistance = 0, cameraX = 0, cameraY = 0;
 int xBegin, yBegin;
 
+//	ƒtƒ‰ƒO
+bool isTracking = false;
+
 void polarview();
 void mainLoop();
 void reshape(int w, int h);
