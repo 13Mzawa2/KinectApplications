@@ -84,7 +84,7 @@ void TrackingEngine::estimateNormal(PointCloud<PointXYZ>::Ptr &cloud, PointCloud
 	ne.compute(*normal);
 }
 
-//	読み込んだデータからHarris特徴点を抽出
+//	読み込んだ3DデータからHarris特徴点を抽出
 void TrackingEngine::getHarrisKeypointsFromLoadedMesh()
 {
 	//	Harris特徴検出器の用意
@@ -103,23 +103,80 @@ void TrackingEngine::getHarrisKeypointsFromLoadedMesh()
 	}
 }
 
-//	OpenCVのcv::Matで保持している点群データをPointCloud型に変換
-void TrackingEngine::loadPointCloudData(cv::Mat cloudMat, cv::Mat colorMat)
+//	Kinectから得た点群データからHarris特徴点を抽出
+void TrackingEngine::getHarrisKeypointsFromKinect()
 {
-	kinectpoints = PointCloud<PointXYZRGB>::Ptr(new PointCloud<PointXYZRGB>());
+	//	平面検出と除去
+	PointCloud<PointXYZ>::Ptr removed_cloud(new PointCloud<PointXYZ>());
+	removeFlatSurface(cloud_kinect, removed_cloud);
+	//	初期化
+	harris_keypoints_kinect = PointCloud<PointXYZI>::Ptr(new PointCloud<PointXYZI>());
+	harris_keypoints3D_kinect = PointCloud<PointXYZ>::Ptr(new PointCloud<PointXYZ>());
+	//	Harris特徴検出器の用意
+	HarrisKeypoint3D<PointXYZ, PointXYZI> detector;
+	detector.setNonMaxSupression(true);
+	detector.setRadius(TRACKING_HARRIS_RADIUS);
+	detector.setInputCloud(removed_cloud);
+	detector.compute(*harris_keypoints_kinect);
+	cout << "keypoints detected: " << harris_keypoints_kinect->size() << endl;
+	//	Visualize用Harris特徴点の用意
+	PointXYZ temp;
+	for (PointCloud<PointXYZI>::iterator it = harris_keypoints_kinect->begin(); it != harris_keypoints_kinect->end(); it++)
+	{
+		temp = PointXYZ((*it).x, (*it).y, (*it).z);
+		harris_keypoints3D_kinect->push_back(temp);
+	}
+}
+
+//	OpenCVのcv::Matで保持している点群データをPointCloud型に変換
+void TrackingEngine::loadPointCloudData(cv::Mat &cloudMat)
+{
+	cloud_kinect = PointCloud<PointXYZ>::Ptr(new PointCloud<PointXYZ>());
 	for (int y = 0; y < cloudMat.rows; y++)
 	{
 		for (int x = 0; x < cloudMat.cols; x++)
 		{
-			PointXYZRGB temp;
+			PointXYZ temp;
 			cv::Vec3f cloudPoint = cloudMat.at<cv::Vec3f>(y, x);
-			temp.x = cloudPoint[0];
-			temp.y = cloudPoint[1];
-			temp.z = cloudPoint[2];
-			temp.r = matR(colorMat, x, y);
-			temp.g = matG(colorMat, x, y);
-			temp.b = matB(colorMat, x, y);
-			kinectpoints->points.push_back(temp);
+			if (cloudPoint[2] == 0) continue;
+			temp.x = cloudPoint[0] * TRACKING_METER2MILLI;
+			temp.y = cloudPoint[1] * TRACKING_METER2MILLI;
+			temp.z = cloudPoint[2] * TRACKING_METER2MILLI;
+			//temp.r = matR(colorMat, x, y);
+			//temp.g = matG(colorMat, x, y);
+			//temp.b = matB(colorMat, x, y);
+			cloud_kinect->points.push_back(temp);
 		}
 	}
+}
+
+void TrackingEngine::removeFlatSurface(pcl::PointCloud<PointXYZ>::Ptr &cloud, PointCloud<PointXYZ>::Ptr &dstCloud)
+{
+	pcl::ModelCoefficients::Ptr coefficients(new pcl::ModelCoefficients);
+	pcl::PointIndices::Ptr inliers(new pcl::PointIndices);
+	// Create the segmentation object
+	pcl::SACSegmentation<pcl::PointXYZ> seg;
+	// Optional
+	seg.setOptimizeCoefficients(true);
+	// Mandatory
+	seg.setModelType(pcl::SACMODEL_PLANE);
+	seg.setMethodType(pcl::SAC_RANSAC);
+	seg.setDistanceThreshold(10.0);
+
+	seg.setInputCloud(cloud->makeShared());
+	seg.segment(*inliers, *coefficients);
+
+	if (inliers->indices.size() == 0)
+	{
+		//cout << "点群データから平面が検出できませんでした" << endl;
+		return ;
+	}
+
+	//	平面フィルタリング実行
+
+	pcl::ExtractIndices<pcl::PointXYZ> extract;
+	extract.setInputCloud(cloud->makeShared());
+	extract.setIndices(inliers);
+	extract.setNegative(true);			//	平面除去オプション
+	extract.filter(*dstCloud);
 }

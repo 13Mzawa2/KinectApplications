@@ -34,10 +34,11 @@
 #include <pcl\common\io.h>
 #include <pcl\io\pcd_io.h>
 #include <pcl\io\vtk_lib_io.h>
-#include <pcl\visualization\cloud_viewer.h>
-#include <pcl\keypoints\harris_3d.h>
+#include <pcl\visualization\cloud_viewer.h>			//	PCLVisualizer
+#include <pcl\keypoints\harris_3d.h>				//	Harris特徴検出器
 #include <pcl\features\fpfh.h>
 #include <pcl\features\normal_3d.h>
+#include <pcl/segmentation/sac_segmentation.h>		//	平面検出
 
 // ビルドモード
 #ifdef _DEBUG
@@ -69,6 +70,7 @@
 #pragma comment(lib, "pcl_registration"		PCL_EXT_STR)
 #pragma comment(lib, "pcl_sample_consensus"	PCL_EXT_STR)
 #pragma comment(lib, "pcl_search"			PCL_EXT_STR)
+#pragma comment(lib, "pcl_segmentation"		PCL_EXT_STR)
 #pragma comment(lib, "pcl_surface"			PCL_EXT_STR)
 #pragma comment(lib, "pcl_tracking"			PCL_EXT_STR)
 #pragma comment(lib, "pcl_visualization"	PCL_EXT_STR)

@@ -210,7 +210,7 @@ double CalibrationEngine::distance(Point2f p1, Point2f p2)
 
 void CalibrationEngine::destroyAllCalibrationWindows()
 {
-	destroyWindow("calibWindow");
+	//destroyWindow("calibWindow");
 	destroyWindow("Šm”F—p");
 	destroyWindow("Projector");
 	destroyWindow("Camera");

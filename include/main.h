@@ -16,6 +16,7 @@ cv::Mat cameraImg;
 cv::Mat depthImg;
 cv::Mat depthGrayImg;
 cv::Mat cloudImg;
+cv::Mat projectImg;
 
 //	距離に関するパラメータ　単位：m
 const double glZNear = 0.001;		//	カメラからの最小距離
@@ -45,4 +46,6 @@ void glutIdleEvent();
 void setcam();
 bool import3DFile(string filename);
 
+//	簡易Projection Mapping
+void depthThreshold(cv::Mat &srcDepthMat, cv::Mat &dstImg);
 #endif //	MAIN_H_
