@@ -26,10 +26,18 @@ public:
 	FullscreenWindow calib_fw;					//	プロジェクターでメニューバーを消去するための処理エンジン
 	cv::Mat homographyProCam;						//	プロジェクタに投影する画像（画像サイズはカメラと同じ）と，それを撮影した画像の座標平面が一致するように変換するホモグラフィ行列
 
+	cv::Mat projectionMat;			//	3x4 透視投影行列 C,  p = CP
+	cv::Mat cameraInnerMat;			//	3x3 カメラ内部行列 A = [[fu, fk, u0],[0, fv, v0],[0, 0, 1]]
+	cv::Mat rotationMat;			//	3x3 回転行列
+	cv::Mat translationMat;			//	4x1 並進ベクトル
+	cv::Point3d transVector;		//	並進ベクトル　OpenGL用
+	cv::Point3d eulerAngles;		//	オイラー角　OpenGL用
+
 	CalibrationEngine();
 	~CalibrationEngine();
 	void setup();
-	void calibrateProCam(KinectV1 kinect);			//	チェッカーパターンを投影してホモグラフィ行列を得る
+	void calibrateProKinect(KinectV1 kinect);			//	Kinectを用いたカメラパラメータ推定（長岡，橋本）
+	void calibrateProCam(KinectV1 kinect);			//	平面にチェッカーパターンを投影してホモグラフィ行列を得る
 	void warpCam2Pro(cv::Mat &camImg, cv::Mat &proImg);		//	カメラ画像をプロジェクタ投影用の画像に変換する
 	void createChessPattern(cv::Mat &chess, cv::Scalar color, cv::Scalar backcolor = cv::Scalar(0,0,0));
 	void splitChessPattern(cv::Mat &srcImg, cv::Mat &chessPro, cv::Mat &chessCam);

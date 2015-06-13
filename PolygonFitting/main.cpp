@@ -26,30 +26,16 @@ void mainLoop()
 
 	glPointSize(1);
 	glBegin(GL_POINTS);
-	//if (isTracking)
-	//{
-	//	glPointSize(7);
-	//	glColor3d(1.0, 0.0, 0.0);		//	Red
-	//	PointCloud<PointXYZ>::Ptr removed_cloud(new PointCloud<PointXYZ>);
-	//	tEngine.removeFlatSurface(tEngine.cloud_kinect, removed_cloud);
-	//	for (PointCloud<PointXYZ>::iterator it = removed_cloud->begin(); it != removed_cloud->end(); it++)
-	//	{
-	//		glVertex3d((*it).x, (*it).y, (*it).z);
-	//	}
-	//}
-	//else
-	//{
-		for (int y = 0; y < cloudImg.rows; y++)
+	for (int y = 0; y < cloudImg.rows; y++)
+	{
+		for (int x = 0; x < cloudImg.cols; x++)
 		{
-			for (int x = 0; x < cloudImg.cols; x++)
-			{
-				Vec3f cloudPoint = cloudImg.at<Vec3f>(y, x);
-				if (cloudPoint[2] == 0) continue;
-				glColor3d(matR(cameraImg, x, y) / 255.0, matG(cameraImg, x, y) / 255.0, matB(cameraImg, x, y) / 255.0);
-				glVertex3d(cloudPoint[0], cloudPoint[1], cloudPoint[2]);
-			}
+			Vec3f cloudPoint = cloudImg.at<Vec3f>(y, x);
+			if (cloudPoint[2] == 0) continue;
+			glColor3d(matR(cameraImg, x, y) / 255.0, matG(cameraImg, x, y) / 255.0, matB(cameraImg, x, y) / 255.0);
+			glVertex3d(cloudPoint[0], cloudPoint[1], cloudPoint[2]);
 		}
-	//}
+	}
 	glEnd();
 	//glFlush();
 	glutSwapBuffers();
@@ -73,7 +59,7 @@ void glutKeyEvent(unsigned char key, int x, int y)
 	{
 	//	キャリブレーション
 	case 'c':
-		cEngine.calibrateProCam(kSensor);
+		cEngine.calibrateProKinect(kSensor);
 		break;
 	//	チェスパターンを出力
 	case 'p':
@@ -152,16 +138,6 @@ void glutIdleEvent()
 	//imshow("depth", depthGrayImg);
 	flip(depthGrayImg, depthGrayImg, 1);
 	kSensor.cvtDepth2Cloud(depthImg, cloudImg);
-	if (isTracking)
-	{
-		Mat projectImgTemp;
-		//tEngine.loadPointCloudData(cloudImg);
-		depthThreshold(depthGrayImg, projectImgTemp);
-		cEngine.warpCam2Pro(projectImgTemp, projectImg);
-		resize(projectImgTemp, projectImg, Size(PROJECTOR_WINDOW_WIDTH, PROJECTOR_WINDOW_HEIGHT));
-		imshow("calibWindow", projectImg);
-		//tEngine.getHarrisKeypointsFromKinect();
-	}
 	kSensor.releaseFrames();
 	glutPostRedisplay();		//	再描画
 }
@@ -241,22 +217,5 @@ bool import3DFile(string filename)
 		tEngine.getHarrisKeypointsFromLoadedMesh();
 		tEngine.showLoadedMesh("Imported 3D File");
 		return true;
-	}
-}
-
-void depthThreshold(cv::Mat &srcDepthMat, cv::Mat &dstImg)
-{
-	Mat temp;
-	cvtColor(srcDepthMat, temp, CV_BGR2GRAY);
-	threshold(temp, temp, 225, 255, THRESH_BINARY);
-	cvtColor(temp, dstImg, CV_GRAY2BGR);
-	for (int i = 0; i < dstImg.rows; i++)
-	{
-		for (int j = 0; j < dstImg.cols; j++)
-		{
-			matB(dstImg, j, i) = matGRAY(temp, j, i) * 1;
-			matG(dstImg, j, i) = matGRAY(temp, j, i) * 1;
-			matR(dstImg, j, i) = matGRAY(temp, j, i) * 0;
-		}
 	}
 }

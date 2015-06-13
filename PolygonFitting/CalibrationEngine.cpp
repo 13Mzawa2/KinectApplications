@@ -32,6 +32,112 @@ void CalibrationEngine::setup()
 
 }
 
+void CalibrationEngine::calibrateProKinect(KinectV1 kinect)
+{
+	setup();
+	cout << "Starting Calibration..." << endl << endl;
+	//	初期チェスパターンを作成
+	createChessPattern(chessYellow, Scalar(0, 0, 0), Scalar(255, 255, 255));		//	チェスパターン：黒，背景：白
+	Rect roi_rect(chessRectPoint, chessYellow.size());
+	Mat roiWindow = calibrationWindow(roi_rect);
+	chessYellow.copyTo(roiWindow);
+	imshow("calibWindow", calibrationWindow);
+	//	プロジェクタに投影する画像
+	Mat projectionImg;
+	resize(calibrationWindow, projectionImg, Size(640, 480));
+	imshow("ProjectionImg", projectionImg);
+	//	1. チェッカーパターンの撮影
+	cout << "投影パターン全体がカメラの画角に収まっていることを確認してください．" << endl
+		<< "確認が終わったらspaceキーを押してください．" << endl;
+	Mat colorImg, cloudImg;
+	while (1)
+	{
+		Mat frame, framed;
+		kinect.waitFrames();
+		kinect.getColorFrame(frame);
+		kinect.getDepthFrame(framed);
+		kinect.cvtDepth2Cloud(framed, cloudImg);		//	cloudImg には colorImg の対応する画素のXYZが入っている
+		flip(frame, colorImg, 1);
+		imshow("確認用", colorImg);
+		kinect.releaseFrames();
+		if (waitKey(10) == ' ') break;
+	}
+	//	2. コーナー点の推定と表示
+	vector<Point2f> corners;
+	Mat chessPro;
+	cvtColor(colorImg, chessPro, CV_BGR2GRAY);
+	bool found = getChessPoints(chessPro, corners);
+	cout << "チェスパターンを描画します．" << endl;
+	drawChessboardCorners(chessPro, numChessPoint, corners, found);
+	imshow("Projector", chessPro);
+	if (!found)
+	{
+		cout << "チェスパターンが見つかりませんでした．" << endl << endl;
+		waitKey(0);
+		destroyAllCalibrationWindows();
+		return;
+	}
+	//	3. コーナー画素のワールド座標をサブピクセル精度で取得(バイリニア補間)
+	cout << "行列を作成中..." << endl;
+	vector<Point3f> cornersWorld;			//	P = [X, Y, Z]
+	Mat AX = Mat_<double>(CALIB_CB_CORNER_COLS * CALIB_CB_CORNER_ROWS * 2, 11);			//	透視投影ベクトルを求めるのに必要な行列
+	Mat U = Mat_<double>(CALIB_CB_CORNER_COLS * CALIB_CB_CORNER_ROWS * 2, 1);			//	カメラ座標
+	for (int j = 0; j < CALIB_CB_CORNER_ROWS; j++)
+	{
+		for (int i = 0; i < CALIB_CB_CORNER_COLS; i++)
+		{
+			int it = j * CALIB_CB_CORNER_COLS + i;
+			Point3f temp_P;
+			Point2f p = corners.at(it);
+			Point intPix((int)floor(p.x), (int)floor(p.y));				//	整数座標
+			Point intPix1((int)floor(p.x)+1, (int)floor(p.y)+1);			//	整数座標 + 1
+			Point2f subPix(p.x - (float)intPix.x, p.y - (float)intPix.y);	//	小数点以下
+			Mat srcMat(cloudImg, Rect(intPix, intPix1));
+			temp_P.x = (1 - subPix.x) * ((1 - subPix.y)*matBf(srcMat, 0, 0) + subPix.y * matBf(srcMat, 0, 1))
+				+ subPix.x * ((1 - subPix.y)*matBf(srcMat, 1, 0) + subPix.y * matBf(srcMat, 1, 1));
+			temp_P.y = (1 - subPix.x) * ((1 - subPix.y)*matGf(srcMat, 0, 0) + subPix.y * matGf(srcMat, 0, 1))
+				+ subPix.x * ((1 - subPix.y)*matGf(srcMat, 1, 0) + subPix.y * matGf(srcMat, 1, 1));
+			temp_P.z = (1 - subPix.x) * ((1 - subPix.y)*matRf(srcMat, 0, 0) + subPix.y * matRf(srcMat, 0, 1))
+				+ subPix.x * ((1 - subPix.y)*matRf(srcMat, 1, 0) + subPix.y * matRf(srcMat, 1, 1));
+			cornersWorld.push_back(temp_P);
+			//	行列AXの作成
+			Rect roi(Point(it * 2, 0), Size(2, 11));
+			Mat roi_AX(AX, roi);		//	2 x 11 行列
+			roi_AX = (Mat_<double>(2, 11) << temp_P.x, temp_P.y, temp_P.z, 1, 0, 0, 0, 0, -p.x * temp_P.x, -p.x * temp_P.y, -p.x * temp_P.z,
+				0, 0, 0, 0, temp_P.x, temp_P.y, temp_P.z, 1, -p.y * temp_P.x, -p.y * temp_P.y, -p.y * temp_P.z);
+			U.at<double>(it * 2, 0) = p.x; U.at<double>(it * 2 + 1, 0) = p.y;
+		}
+	}
+	//	4. 疑似逆行列による透視投影行列Cの線形最小二乗解 AX * C = U  -->  C = (AX^T * AX)^-1 * AX^T * U
+	cout << "透視投影行列を計算中..." << endl;
+	Mat C = AX.inv(DECOMP_SVD) * U;
+	projectionMat = Mat_<double>(3, 4);
+	for (int j = 0; j < 3; j++)
+	{
+		for (int i = 0; i < 4; i++)
+		{
+			if (i == 3 && j == 2) projectionMat.at<double>(i, j) = 1.0;
+			else projectionMat.at<double>(i, j) = C.at<double>(j * 4 + i);
+		}
+	}
+	//	5. 非線形最適化（今後の課題）
+	//	6. 内部行列と外部行列に分離
+	cout << "各種パラメータに分解中..." << endl;
+	Mat rotMat, transMat;
+	Vec3d eulerAng;
+	decomposeProjectionMatrix(projectionMat, cameraInnerMat, rotMat, transMat, Mat(), Mat(), Mat(), eulerAng);
+	transVector.x = transMat.at<double>(0, 0);
+	transVector.y = transMat.at<double>(1, 0);
+	transVector.z = transMat.at<double>(2, 0);
+	eulerAngles = eulerAng;
+
+	cout << "キャリブレーションが終了しました．" << endl;
+	cout << "透視投影行列 C = " << projectionMat << endl;
+	cout << "回転行列 R = " << rotMat << endl;
+	cout << "並進ベクトル T = " << transVector << endl;
+	cout << "オイラー角 e = " << eulerAngles << endl;
+}
+
 void CalibrationEngine::calibrateProCam(KinectV1 kinect)
 {
 	setup();
@@ -194,7 +300,7 @@ void CalibrationEngine::splitChessPattern(Mat &src, Mat &chessPro, Mat &chessCam
 bool CalibrationEngine::getChessPoints(Mat chessImg, vector<Point2f> &corners)
 {
 	bool found = findChessboardCorners(chessImg, numChessPoint, corners,
-		CALIB_CB_NORMALIZE_IMAGE + CALIB_CB_FAST_CHECK);
+		CALIB_CB_ADAPTIVE_THRESH + CALIB_CB_NORMALIZE_IMAGE);
 	if (found)
 	{
 		cornerSubPix(chessImg, corners, Size(11, 11), Size(-1, -1),

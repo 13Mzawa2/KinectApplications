@@ -46,6 +46,4 @@ void glutIdleEvent();
 void setcam();
 bool import3DFile(string filename);
 
-//	ŠÈˆÕProjection Mapping
-void depthThreshold(cv::Mat &srcDepthMat, cv::Mat &dstImg);
 #endif //	MAIN_H_
