@@ -153,6 +153,15 @@ void CalibrationEngine::calibrateProKinect(KinectV1 kinect)
 	transVector.y = transMat.at<double>(1, 0);
 	transVector.z = transMat.at<double>(2, 0);
 	eulerAngles = eulerAng;
+	for (int i = 0; i < 4; i++)
+	{
+		for (int j = 0; j < 3; j++)
+		{
+			rotate[i * 4 + j] = rotMat.at<double>(i, j);
+		}
+		rotate[i * 4 + 3] = transMat.at<double>(i, 0);
+	}
+	rotate[12] = 0; rotate[13] = 0; rotate[14] = 0; rotate[15] = 1;
 
 	cout << "キャリブレーションが終了しました．" << endl;
 	cout << "透視投影行列 C = " << projectionMat << endl;
