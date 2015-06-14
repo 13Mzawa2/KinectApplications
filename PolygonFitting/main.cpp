@@ -6,10 +6,19 @@ using namespace cv;
 //視点変更
 void polarview()
 {
+	if (calibrated)
+	{
+		cameraX = cEngine.transVector.x;
+		cameraY = cEngine.transVector.y;
+		cameraDistance = cEngine.transVector.z;
+		twist = -cEngine.eulerAngles.x;
+		azimuth = -cEngine.eulerAngles.z;
+		elevation = -cEngine.eulerAngles.y;
+	}
 	glTranslatef(cameraX, cameraY, cameraDistance);
-	glRotatef(-twist, 0.0, 0.0, 1.0);
-	glRotatef(-elevation, 1.0, 0.0, 0.0);
-	glRotatef(-azimuth, 0.0, 1.0, 0.0);
+	glRotatef(-twist, 1.0, 0.0, 0.0);			//	pitch
+	glRotatef(-elevation, 0.0, 0.0, 1.0);		//	roll
+	glRotatef(-azimuth, 0.0, 1.0, 0.0);			//	yaw
 }
 void mainLoop()
 {
@@ -23,6 +32,19 @@ void mainLoop()
 
 	//視点の変更
 	polarview();
+
+	glLineWidth(3.0);
+	glBegin(GL_LINES);
+	glColor3d(1, 0, 0);
+	glVertex3d(0, 0, 0);
+	glVertex3d(1, 0, 0);
+	glColor3d(0, 1, 0);
+	glVertex3d(0, 0, 0);
+	glVertex3d(0, 1, 0);
+	glColor3d(0, 0, 1);
+	glVertex3d(0, 0, 0);
+	glVertex3d(0, 0, 1);
+	glEnd();
 
 	glPointSize(1);
 	glBegin(GL_POINTS);
@@ -60,6 +82,7 @@ void glutKeyEvent(unsigned char key, int x, int y)
 	//	キャリブレーション
 	case 'c':
 		cEngine.calibrateProKinect(kSensor);
+		calibrated = true;
 		break;
 	//	チェスパターンを出力
 	case 'p':

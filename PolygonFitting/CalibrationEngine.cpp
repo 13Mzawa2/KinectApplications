@@ -79,6 +79,16 @@ void CalibrationEngine::calibrateProKinect(KinectV1 kinect)
 	}
 	//	3. コーナー画素のワールド座標をサブピクセル精度で取得(バイリニア補間)
 	cout << "行列を作成中..." << endl;
+
+	vector<Point2f>	chessCorners(CALIB_CB_CORNER_COLS*CALIB_CB_CORNER_ROWS);				//	プロジェクタ画面座標でのコーナー座標
+	for (int i = 0; i < CALIB_CB_CORNER_ROWS; i++)
+	{
+		for (int j = 0; j < CALIB_CB_CORNER_COLS; j++)
+		{
+			chessCorners.at(i * CALIB_CB_CORNER_COLS + j).x = ((j + 1) * chessSize + CALIB_DEFAULT_CHESS_ORIGIN_X);
+			chessCorners.at(i * CALIB_CB_CORNER_COLS + j).y = ((i + 1) * chessSize + CALIB_DEFAULT_CHESS_ORIGIN_Y);
+		}
+	}
 	vector<Point3f> cornersWorld;			//	P = [X, Y, Z]
 	Mat AX = Mat_<double>(CALIB_CB_CORNER_COLS * CALIB_CB_CORNER_ROWS * 2, 11);			//	透視投影ベクトルを求めるのに必要な行列
 	Mat U = Mat_<double>(CALIB_CB_CORNER_COLS * CALIB_CB_CORNER_ROWS * 2, 1);			//	カメラ座標
@@ -88,6 +98,7 @@ void CalibrationEngine::calibrateProKinect(KinectV1 kinect)
 		{
 			int it = j * CALIB_CB_CORNER_COLS + i;
 			Point3f temp_P;
+			//	カメラ座標系上でのコーナー座標
 			Point2f p = corners.at(it);
 			Point intPix((int)floor(p.x), (int)floor(p.y));				//	整数座標
 			Point intPix1((int)floor(p.x)+1, (int)floor(p.y)+1);			//	整数座標 + 1
@@ -101,31 +112,43 @@ void CalibrationEngine::calibrateProKinect(KinectV1 kinect)
 				+ subPix.x * ((1 - subPix.y)*matRf(srcMat, 1, 0) + subPix.y * matRf(srcMat, 1, 1));
 			cornersWorld.push_back(temp_P);
 			//	行列AXの作成
-			Rect roi(Point(it * 2, 0), Size(2, 11));
-			Mat roi_AX(AX, roi);		//	2 x 11 行列
-			roi_AX = (Mat_<double>(2, 11) << temp_P.x, temp_P.y, temp_P.z, 1, 0, 0, 0, 0, -p.x * temp_P.x, -p.x * temp_P.y, -p.x * temp_P.z,
-				0, 0, 0, 0, temp_P.x, temp_P.y, temp_P.z, 1, -p.y * temp_P.x, -p.y * temp_P.y, -p.y * temp_P.z);
-			U.at<double>(it * 2, 0) = p.x; U.at<double>(it * 2 + 1, 0) = p.y;
+			//Rect roi(Point(0, it * 2), Size(11, 2));
+			Mat roi_AX;		//	2 x 11 行列
+			Point2f pp = chessCorners.at(it);		//	プロジェクタ座標系上でのコーナー座標
+			roi_AX = (Mat_<double>(2, 11) << temp_P.x, temp_P.y, temp_P.z, 1, 0, 0, 0, 0, -pp.x * temp_P.x, -pp.x * temp_P.y, -pp.x * temp_P.z,
+				0, 0, 0, 0, temp_P.x, temp_P.y, temp_P.z, 1, -pp.y * temp_P.x, -pp.y * temp_P.y, -pp.y * temp_P.z);
+			for (int k = 0; k < 2; k++)
+			{
+				for (int l = 0; l < 11; l++)
+				{
+					AX.at<double>(it * 2 + k, l) = roi_AX.at<double>(k, l);
+				}
+			}
+			U.at<double>(it * 2, 0) = pp.x; U.at<double>(it * 2 + 1, 0) = pp.y;
+			//cout << roi_AX << endl << AX.rowRange(Range(it * 2, (it + 1) * 2)) << endl << endl;
 		}
 	}
 	//	4. 疑似逆行列による透視投影行列Cの線形最小二乗解 AX * C = U  -->  C = (AX^T * AX)^-1 * AX^T * U
+	//	   これは測定による誤差を考慮していない
 	cout << "透視投影行列を計算中..." << endl;
+	//cout << "AX^-1 = " << AX.inv(DECOMP_SVD) << endl;
 	Mat C = AX.inv(DECOMP_SVD) * U;
 	projectionMat = Mat_<double>(3, 4);
 	for (int j = 0; j < 3; j++)
 	{
 		for (int i = 0; i < 4; i++)
 		{
-			if (i == 3 && j == 2) projectionMat.at<double>(i, j) = 1.0;
-			else projectionMat.at<double>(i, j) = C.at<double>(j * 4 + i);
+			if (i == 3 && j == 2) projectionMat.at<double>(j, i) = 1.0;
+			else projectionMat.at<double>(j, i) = C.at<double>(j * 4 + i, 0);
 		}
 	}
+	//cout << "C = " << C << endl;
 	//	5. 非線形最適化（今後の課題）
 	//	6. 内部行列と外部行列に分離
 	cout << "各種パラメータに分解中..." << endl;
-	Mat rotMat, transMat;
+	Mat rotMat, transMat, rotX, rotY, rotZ;
 	Vec3d eulerAng;
-	decomposeProjectionMatrix(projectionMat, cameraInnerMat, rotMat, transMat, Mat(), Mat(), Mat(), eulerAng);
+	decomposeProjectionMatrix(projectionMat, cameraInnerMat, rotMat, transMat, rotX, rotY, rotZ, eulerAng);
 	transVector.x = transMat.at<double>(0, 0);
 	transVector.y = transMat.at<double>(1, 0);
 	transVector.z = transMat.at<double>(2, 0);
@@ -133,9 +156,13 @@ void CalibrationEngine::calibrateProKinect(KinectV1 kinect)
 
 	cout << "キャリブレーションが終了しました．" << endl;
 	cout << "透視投影行列 C = " << projectionMat << endl;
+	cout << "カメラ内部パラメータ A = " << cameraInnerMat << endl;
 	cout << "回転行列 R = " << rotMat << endl;
 	cout << "並進ベクトル T = " << transVector << endl;
 	cout << "オイラー角 e = " << eulerAngles << endl;
+	
+	waitKey(0);
+	destroyAllCalibrationWindows();
 }
 
 void CalibrationEngine::calibrateProCam(KinectV1 kinect)

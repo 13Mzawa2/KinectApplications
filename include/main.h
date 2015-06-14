@@ -33,6 +33,7 @@ int xBegin, yBegin;
 
 //	ƒtƒ‰ƒO
 bool isTracking = false;
+bool calibrated = false;
 
 void polarview();
 void mainLoop();
