@@ -1,6 +1,6 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio Express 2013 for Windows Desktop
+# Visual Studio 2013
 VisualStudioVersion = 12.0.21005.1
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "KinectTestConsole", "KinectApplications\KinectApplications.vcxproj", "{C81C692B-3056-4EBA-99B4-4BBA80FF5036}"
@@ -14,6 +14,8 @@ EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "RGB-D Odometry", "RGB-D Odometry\RGB-D Odometry.vcxproj", "{EDCD2470-5C2A-4C00-A1DF-D60DE0571C5E}"
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "PolygonFitting", "PolygonFitting\PolygonFitting.vcxproj", "{22A95285-E194-4CAC-B6E1-4222DD564DCF}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "StaticProjectionMapping", "StaticProjectionMapping\StaticProjectionMapping.vcxproj", "{F941EBFA-9E2E-4178-A939-D328CC0CAB83}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -45,6 +47,10 @@ Global
 		{22A95285-E194-4CAC-B6E1-4222DD564DCF}.Debug|Win32.Build.0 = Debug|Win32
 		{22A95285-E194-4CAC-B6E1-4222DD564DCF}.Release|Win32.ActiveCfg = Release|Win32
 		{22A95285-E194-4CAC-B6E1-4222DD564DCF}.Release|Win32.Build.0 = Release|Win32
+		{F941EBFA-9E2E-4178-A939-D328CC0CAB83}.Debug|Win32.ActiveCfg = Debug|Win32
+		{F941EBFA-9E2E-4178-A939-D328CC0CAB83}.Debug|Win32.Build.0 = Debug|Win32
+		{F941EBFA-9E2E-4178-A939-D328CC0CAB83}.Release|Win32.ActiveCfg = Release|Win32
+		{F941EBFA-9E2E-4178-A939-D328CC0CAB83}.Release|Win32.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
