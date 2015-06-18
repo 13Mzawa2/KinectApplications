@@ -22,10 +22,10 @@ const int glFovy = 45;			//	カメラの視野角(degree)
 //	OpenGL操作のためのパラメータ
 int FormWidth = 640;			//	フォームの幅
 int FormHeight = 480;			//	フォームの高さ
-int mButton;
-float twist, elevation, azimuth;		//	
-float cameraDistance = 0, cameraX = 0, cameraY = 0;
-int xBegin, yBegin;
+int mButton;					//	ドラッグしているボタンID
+float twist, elevation, azimuth;						//	roll, pitch, yaw
+float cameraDistance = 0, cameraX = 0, cameraY = 0;		//	カメラ原点からのZ, X, Y 距離
+int xBegin, yBegin;				//	ドラッグ開始位置
 
 //	UIのための関数群
 void polarview();

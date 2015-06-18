@@ -3,14 +3,6 @@
 using namespace cv;
 
 
-//視点変更
-void polarview()
-{
-	glTranslatef(cameraX, cameraY, cameraDistance);
-	glRotatef(-twist, 0.0, 0.0, 1.0);			//	roll
-	glRotatef(-elevation, 1.0, 0.0, 0.0);		//	pitch
-	glRotatef(-azimuth, 0.0, 1.0, 0.0);			//	yaw
-}
 void mainLoop()
 {
 	//	OpenGLで描画
@@ -74,6 +66,8 @@ void glutKeyEvent(unsigned char key, int x, int y)
 	case 'f':			//	3つの四角形のフィッティング
 		break;
 	case 'r':			//	MainWindowの視点リセット
+		twist = 0; elevation = 0; azimuth = 0;
+		cameraDistance = 0, cameraX = 0, cameraY = 0;
 		break;
 	case VK_ESCAPE:
 		exit(0);
@@ -170,4 +164,16 @@ int main(int argc, char** argv)
 	cv::destroyAllWindows();
 
 	return 0;
+}
+//----------------------------------------
+//		UIのための関数
+//----------------------------------------
+
+//	視点変更
+void polarview()
+{
+	glTranslatef(cameraX, cameraY, cameraDistance);
+	glRotatef(-twist, 0.0, 0.0, 1.0);			//	roll
+	glRotatef(-elevation, 1.0, 0.0, 0.0);		//	pitch
+	glRotatef(-azimuth, 0.0, 1.0, 0.0);			//	yaw
 }
