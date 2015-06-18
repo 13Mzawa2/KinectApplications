@@ -8,17 +8,12 @@ void polarview()
 {
 	if (calibrated)
 	{
-		cameraX = cEngine.transVector.x;
-		cameraY = cEngine.transVector.y;
-		cameraDistance = cEngine.transVector.z;
-		twist = -cEngine.eulerAngles.x;
-		azimuth = -cEngine.eulerAngles.z;
-		elevation = -cEngine.eulerAngles.y;
+		glMultMatrixd((GLdouble*)cEngine.rotate);
 	}
 	glTranslatef(cameraX, cameraY, cameraDistance);
-	glRotatef(-twist, 1.0, 0.0, 0.0);			//	pitch
-	glRotatef(-elevation, 0.0, 0.0, 1.0);		//	roll
+	glRotatef(-twist, 0.0, 0.0, 1.0);			//	roll
 	glRotatef(-azimuth, 0.0, 1.0, 0.0);			//	yaw
+	glRotatef(-elevation, 1.0, 0.0, 0.0);		//	pitch
 }
 void mainLoop()
 {

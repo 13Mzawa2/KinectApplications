@@ -32,6 +32,7 @@ public:
 	cv::Mat translationMat;			//	4x1 並進ベクトル
 	cv::Point3d transVector;		//	並進ベクトル　OpenGL用
 	cv::Point3d eulerAngles;		//	オイラー角　OpenGL用(pitch, roll, yaw)
+	double rotate[16];
 
 	CalibrationEngine();
 	~CalibrationEngine();
