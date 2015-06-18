@@ -8,7 +8,7 @@ class TextureMappingEngine
 {
 public:
 	bool fullscreen = false;
-	int selectedTextuerIndex = -1;
+	int selectedTextuerIndex = 0;
 	int selectedTextureVertexIndex = -1;		//	-1:–¢‘I‘ğó‘Ô
 	cv::Point2f previousMousePosition;
 	HomographicImage hImg[3];

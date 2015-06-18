@@ -131,7 +131,7 @@ int main(int argc, char** argv)
 		NUI_INITIALIZE_FLAG_USES_DEPTH_AND_PLAYER_INDEX);
 
 	//	プロジェクタ投影用ウィンドウ
-	namedWindow("ProjectorWindow");
+	namedWindow("ProjectorWindow", CV_WINDOW_NORMAL);
 
 	//	GLUTの初期化，ウィンドウの用意
 	glutInit(&argc, argv);
@@ -186,7 +186,7 @@ void modifyVertexCallback(int aEvent, int x, int y, int flags, void *param)
 	case EVENT_MOUSEMOVE:
 		if (tme.selectedTextureVertexIndex >= 0)	//	selected
 		{
-			tme.hImg[tme.selectedTextuerIndex].proPoints.at(tme.selectedTextureVertexIndex)
+			tme.hImg[tme.selectedTextuerIndex].proPoints[tme.selectedTextureVertexIndex]
 				+= currentMousePosition - tme.previousMousePosition;
 		}
 		break;
@@ -194,7 +194,8 @@ void modifyVertexCallback(int aEvent, int x, int y, int flags, void *param)
 	case EVENT_LBUTTONDOWN:
 		for (int idx = 0; idx < 4; idx++)
 		{
-			if (norm(tme.hImg[tme.selectedTextuerIndex].proPoints.at(idx) - currentMousePosition) < 10.0)
+			float d = norm(tme.hImg[tme.selectedTextuerIndex].proPoints[idx] - currentMousePosition);
+			if (d < 10.0)
 			{
 				tme.selectedTextureVertexIndex = idx;
 			}

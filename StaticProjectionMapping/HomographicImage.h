@@ -24,5 +24,6 @@ public:
 	void calcProHomography();
 	void deformation();
 	void drawLayer(cv::Mat &projectionImg);
+	void drawVertex(cv::Mat &img);
 };
 
