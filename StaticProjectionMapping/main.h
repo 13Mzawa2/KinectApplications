@@ -4,15 +4,22 @@
 #include <OpenCVAdapter.hpp>
 #include <KinectV1Adapter.h>
 #include <gl/glut.h>
+#include "OpenGLDrawing.h"
+#include "CalibrationEngine.h"
+#include "HomographicImage.h"
+#include "TextureMappingEngine.h"
 
 //	自作処理エンジン
 KinectV1 kSensor;
+CalibrationEngine ce;
+TextureMappingEngine tme;
+
 //	必要な画像群
 cv::Mat cameraImg;
 cv::Mat depthImg;
 cv::Mat depthGrayImg;
 cv::Mat cloudImg;
-cv::Mat projectImg;
+//cv::Mat projectImg = cv::Mat(Size(PROJECTOR_WINDOW_WIDTH, PROJECTOR_WINDOW_HEIGHT), CV_8U);
 
 //	距離に関するパラメータ　単位：m
 const double glZNear = 0.001;		//	カメラからの最小距離
@@ -29,6 +36,7 @@ int xBegin, yBegin;				//	ドラッグ開始位置
 
 //	UIのための関数群
 void polarview();
+void textureMapping();
 //	GLUT用関数
 void mainLoop();
 void reshapeEvent(int w, int h);

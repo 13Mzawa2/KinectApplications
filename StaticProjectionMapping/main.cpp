@@ -13,21 +13,10 @@ void mainLoop()
 		0, 0, 10.0,				//	注視点
 		0, 1.0, 0);				//	画面の上を表すベクトル
 
-	//視点の変更
+	//	視点の変更
 	polarview();
-
-	glLineWidth(3.0);
-	glBegin(GL_LINES);
-	glColor3d(1, 0, 0);
-	glVertex3d(0, 0, 0);
-	glVertex3d(1, 0, 0);
-	glColor3d(0, 1, 0);
-	glVertex3d(0, 0, 0);
-	glVertex3d(0, 1, 0);
-	glColor3d(0, 0, 1);
-	glVertex3d(0, 0, 0);
-	glVertex3d(0, 0, 1);
-	glEnd();
+	//	座標軸の描画
+	drawGlobalXYZ(1.0, 3.0);
 
 	glPointSize(1);
 	glBegin(GL_POINTS);
@@ -63,7 +52,8 @@ void glutKeyEvent(unsigned char key, int x, int y)
 	{
 	case 'c':			//	キャリブレーション
 		break;
-	case 'f':			//	3つの四角形のフィッティング
+	case 't':			//	3つの四角形のフィッティング
+		textureMapping();
 		break;
 	case 'r':			//	MainWindowの視点リセット
 		twist = 0; elevation = 0; azimuth = 0;
@@ -140,6 +130,9 @@ int main(int argc, char** argv)
 		NUI_INITIALIZE_FLAG_USES_COLOR |
 		NUI_INITIALIZE_FLAG_USES_DEPTH_AND_PLAYER_INDEX);
 
+	//	プロジェクタ投影用ウィンドウ
+	namedWindow("ProjectorWindow");
+
 	//	GLUTの初期化，ウィンドウの用意
 	glutInit(&argc, argv);
 	glutInitWindowPosition(100, 100);
@@ -176,4 +169,41 @@ void polarview()
 	glRotatef(-twist, 0.0, 0.0, 1.0);			//	roll
 	glRotatef(-elevation, 1.0, 0.0, 0.0);		//	pitch
 	glRotatef(-azimuth, 0.0, 1.0, 0.0);			//	yaw
+}
+//	3枚の図形を貼り付ける
+void textureMapping()
+{
+	tme.staticTextureMapping(kSensor);
+}
+//	static texture mappin のコールバック関数
+void modifyVertexCallback(int aEvent, int x, int y, int flags, void *param)
+{
+	Point2f currentMousePosition(x, y);
+
+	switch (aEvent)
+	{
+		//	マウスの移動量に合わせて指定した頂点を移動
+	case EVENT_MOUSEMOVE:
+		if (tme.selectedTextureVertexIndex >= 0)	//	selected
+		{
+			tme.hImg[tme.selectedTextuerIndex].proPoints.at(tme.selectedTextureVertexIndex)
+				+= currentMousePosition - tme.previousMousePosition;
+		}
+		break;
+		//	頂点を選択する
+	case EVENT_LBUTTONDOWN:
+		for (int idx = 0; idx < 4; idx++)
+		{
+			if (norm(tme.hImg[tme.selectedTextuerIndex].proPoints.at(idx) - currentMousePosition) < 10.0)
+			{
+				tme.selectedTextureVertexIndex = idx;
+			}
+		}
+		break;
+		//	選択を解除
+	case EVENT_LBUTTONUP:
+		tme.selectedTextureVertexIndex = -1;
+		break;
+	}
+	tme.previousMousePosition = currentMousePosition;
 }

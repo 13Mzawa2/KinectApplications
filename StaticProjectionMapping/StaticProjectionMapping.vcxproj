@@ -83,12 +83,19 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="..\include\KinectV1Adapter.cpp" />
+    <ClCompile Include="CalibrationEngine.cpp" />
+    <ClCompile Include="HomographicImage.cpp" />
     <ClCompile Include="main.cpp" />
+    <ClCompile Include="TextureMappingEngine.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\include\KinectV1Adapter.h" />
     <ClInclude Include="..\include\OpenCVAdapter.hpp" />
+    <ClInclude Include="CalibrationEngine.h" />
+    <ClInclude Include="HomographicImage.h" />
     <ClInclude Include="main.h" />
+    <ClInclude Include="OpenGLDrawing.h" />
+    <ClInclude Include="TextureMappingEngine.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
