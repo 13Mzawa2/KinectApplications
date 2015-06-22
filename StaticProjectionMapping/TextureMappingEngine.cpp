@@ -28,12 +28,16 @@ void TextureMappingEngine::staticTextureMapping(KinectV1 kinect)
 
 	while (1)
 	{
-		////	kinectからの画像確認
-		//Mat colorImg;
-		//kinect.waitFrames();
-		//kinect.getColorFrame(colorImg);
-		//flip(colorImg, colorImg, 1);		//	左右反転
-		//imshow("確認用", colorImg);
+		//	kinectからの画像確認
+		Mat colorImg;
+		kinect.waitFrames();
+		kinect.getColorFrame(colorImg);
+		kinect.releaseFrames();
+		flip(colorImg, colorImg, 1);		//	左右反転
+		Mat colorImg_roi(colorImg, Rect(370, 140, 200, 250));
+		Mat colorImg_rescale;
+		resize(colorImg_roi, colorImg_rescale, Size(600, 750));
+		imshow("確認用", colorImg_rescale);
 		//	Frame背景を塗りつぶし
 		projectFrame = Scalar(0,0,0);			//	黒（投影しない）
 		controlFrame = Scalar(100, 100, 100);	//	暗めのグレー
@@ -46,6 +50,7 @@ void TextureMappingEngine::staticTextureMapping(KinectV1 kinect)
 		}
 		imshow("ProjectorWindow", projectFrame);
 		imshow("ControlWindow", controlFrame);
+
 
 		//	キーイベント制御コード
 		switch (waitKey(10))
@@ -78,8 +83,49 @@ void TextureMappingEngine::staticTextureMapping(KinectV1 kinect)
 			selectedTextuerIndex = 2;
 			cout << "テクスチャ2を選択" << endl;
 			break;
-
+			//	現在の座標系をセーブ
+		case 's':
+			saveTextureVertexData("Vertex.txt");
+			break;
+		case 'l':
+			loadTextureVertexData("Vertex.txt");
+			break;
 		}
 
 	}
+}
+
+void TextureMappingEngine::saveTextureVertexData(string filename)
+{
+	ofstream ofs(filename);
+	for (int idx = 0; idx < 3; idx++)
+	{
+		for (int i = 0; i < 4; i++)
+		{
+			ofs << hImg[idx].proPoints[i] << endl;
+		}
+	}
+}
+
+void TextureMappingEngine::loadTextureVertexData(string filename)
+{
+	ifstream ifs(filename);
+
+	if (ifs.fail()) {
+		cerr << "File do not exist.\n";
+		return;
+	}
+	for (int idx = 0; idx < 3; idx++)
+	{
+		for (int i = 0; i < 4; i++)
+		{
+			string str;
+			if (!getline(ifs, str)) break;
+			Point2f p;
+			sscanf_s(str.data(), "[%f,%f]", &p.x, &p.y);
+			hImg[idx].proPoints[i] = p;
+			
+		}
+	}
+	
 }

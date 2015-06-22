@@ -5,6 +5,18 @@ using namespace cv;
 
 void mainLoop()
 {
+	//	Kinectからの読込
+	kSensor.waitFrames();
+	kSensor.getColorFrame(cameraImg);
+	kSensor.getDepthFrameCoordinated(depthImg);
+	//blur(depthImg, depthImg, Size(11,11));			//	デプスマップのノイズ対策（橋本ら）
+	kSensor.cvtDepth2Gray(depthImg, depthGrayImg);
+	//imshow("cam", cameraImg);
+	//imshow("depth", depthGrayImg);
+	flip(depthGrayImg, depthGrayImg, 1);
+	kSensor.cvtDepth2Cloud(depthImg, cloudImg);
+	kSensor.releaseFrames();
+
 	//	OpenGLで描画
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	glLoadIdentity();
@@ -108,17 +120,6 @@ void glutMotionEvent(int x, int y)
 }
 void glutIdleEvent()
 {
-	//	Kinectからの読込
-	kSensor.waitFrames();
-	kSensor.getColorFrame(cameraImg);
-	kSensor.getDepthFrameCoordinated(depthImg);
-	//blur(depthImg, depthImg, Size(11,11));			//	デプスマップのノイズ対策（橋本ら）
-	kSensor.cvtDepth2Gray(depthImg, depthGrayImg);
-	//imshow("cam", cameraImg);
-	//imshow("depth", depthGrayImg);
-	flip(depthGrayImg, depthGrayImg, 1);
-	kSensor.cvtDepth2Cloud(depthImg, cloudImg);
-	kSensor.releaseFrames();
 	glutPostRedisplay();		//	再描画
 }
 
