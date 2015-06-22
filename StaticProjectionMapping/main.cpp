@@ -5,18 +5,21 @@ using namespace cv;
 
 void mainLoop()
 {
-	//	Kinectからの読込
-	kSensor.waitFrames();
-	kSensor.getColorFrame(cameraImg);
-	kSensor.getDepthFrameCoordinated(depthImg);
-	//blur(depthImg, depthImg, Size(11,11));			//	デプスマップのノイズ対策（橋本ら）
-	kSensor.cvtDepth2Gray(depthImg, depthGrayImg);
-	//imshow("cam", cameraImg);
-	//imshow("depth", depthGrayImg);
-	flip(depthGrayImg, depthGrayImg, 1);
-	kSensor.cvtDepth2Cloud(depthImg, cloudImg);
-	kSensor.releaseFrames();
+	if (cameraLoop)
+	{
+		//	Kinectからの読込
+		kSensor.waitFrames();
+		kSensor.getColorFrame(cameraImg);
+		kSensor.getDepthFrameCoordinated(depthImg);
+		//blur(depthImg, depthImg, Size(11,11));			//	デプスマップのノイズ対策（橋本ら）
+		kSensor.cvtDepth2Gray(depthImg, depthGrayImg);
+		//imshow("cam", cameraImg);
+		//imshow("depth", depthGrayImg);
+		flip(depthGrayImg, depthGrayImg, 1);
+		kSensor.cvtDepth2Cloud(depthImg, cloudImg);
+		kSensor.releaseFrames();
 
+	}
 	//	OpenGLで描画
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	glLoadIdentity();
@@ -174,7 +177,9 @@ void polarview()
 //	3枚の図形を貼り付ける
 void textureMapping()
 {
+	cameraLoop = false;
 	tme.staticTextureMapping(kSensor);
+	cameraLoop = true;
 }
 //	static texture mappin のコールバック関数
 void modifyVertexCallback(int aEvent, int x, int y, int flags, void *param)

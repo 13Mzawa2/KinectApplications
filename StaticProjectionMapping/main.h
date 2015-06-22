@@ -33,6 +33,7 @@ int mButton;					//	ドラッグしているボタンID
 float twist, elevation, azimuth;						//	roll, pitch, yaw
 float cameraDistance = 0, cameraX = 0, cameraY = 0;		//	カメラ原点からのZ, X, Y 距離
 int xBegin, yBegin;				//	ドラッグ開始位置
+bool cameraLoop = true;
 
 //	UIのための関数群
 void polarview();

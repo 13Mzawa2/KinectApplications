@@ -53,7 +53,7 @@ void TextureMappingEngine::staticTextureMapping(KinectV1 kinect)
 
 
 		//	キーイベント制御コード
-		switch (waitKey(10))
+		switch (waitKey(30))
 		{
 		case VK_ESCAPE:
 			destroyWindow("ControlWindow");
