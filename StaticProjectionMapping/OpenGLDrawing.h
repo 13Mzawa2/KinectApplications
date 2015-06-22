@@ -1,6 +1,11 @@
+#ifndef OPENGLDRAWING_H_
+#define OPENGLDRAWING_H_
+
 #include <gl\glut.h>
 
-void drawGlobalXYZ(GLfloat length, GLfloat width)
+//void drawGlobalXYZ(GLfloat length, GLfloat width);
+
+inline void drawGlobalXYZ(GLfloat length, GLfloat width)
 {
 	glLineWidth(width);
 	glBegin(GL_LINES);
@@ -15,3 +20,5 @@ void drawGlobalXYZ(GLfloat length, GLfloat width)
 	glVertex3d(0, 0, length);
 	glEnd();
 }
+
+#endif //	OPENGLDRAWING_H_

@@ -86,6 +86,8 @@
     <ClCompile Include="CalibrationEngine.cpp" />
     <ClCompile Include="HomographicImage.cpp" />
     <ClCompile Include="main.cpp" />
+    <ClCompile Include="MainWindow.cpp" />
+    <ClCompile Include="ProjectionWindow.cpp" />
     <ClCompile Include="TextureMappingEngine.cpp" />
   </ItemGroup>
   <ItemGroup>
@@ -94,7 +96,9 @@
     <ClInclude Include="CalibrationEngine.h" />
     <ClInclude Include="HomographicImage.h" />
     <ClInclude Include="main.h" />
+    <ClInclude Include="MainWindow.h" />
     <ClInclude Include="OpenGLDrawing.h" />
+    <ClInclude Include="ProjectionWindow.h" />
     <ClInclude Include="TextureMappingEngine.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
