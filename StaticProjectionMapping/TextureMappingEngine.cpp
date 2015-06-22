@@ -34,9 +34,16 @@ void TextureMappingEngine::staticTextureMapping(KinectV1 kinect)
 		kinect.getColorFrame(colorImg);
 		kinect.releaseFrames();
 		flip(colorImg, colorImg, 1);		//	左右反転
+		//	画像のトリミングとヒストグラム平坦化
 		Mat colorImg_roi(colorImg, Rect(370, 140, 200, 250));
 		Mat colorImg_rescale;
 		resize(colorImg_roi, colorImg_rescale, Size(600, 750));
+		cvtColor(colorImg_rescale, colorImg_rescale, CV_BGRA2BGR);
+		Mat colorPlanes[3];
+		split(colorImg_rescale, colorPlanes);
+		for (int i = 0; i < 3; i++)
+			equalizeHist(colorPlanes[i], colorPlanes[i]);
+		merge(colorPlanes, 3, colorImg_rescale);
 		imshow("確認用", colorImg_rescale);
 		//	Frame背景を塗りつぶし
 		projectFrame = Scalar(0,0,0);			//	黒（投影しない）
