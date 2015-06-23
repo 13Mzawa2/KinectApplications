@@ -2,23 +2,9 @@
 
 using namespace cv;
 
-//	fps計測
-int GLframe = 0; //フレーム数
-int GLtimenow = 0;//経過時間
-int GLtimebase = 0;//計測開始時間
 
 void idleEvent()
 {
-	//	FPS計測
-	GLframe++; //フレーム数を＋１
-	GLtimenow = glutGet(GLUT_ELAPSED_TIME);//経過時間を取得
-
-	if (GLtimenow - GLtimebase > 1000)      //１秒以上たったらfpsを出力
-	{
-		printf("fps:%f\r", GLframe*1000.0 / (GLtimenow - GLtimebase));
-		GLtimebase = GLtimenow;//基準時間を設定                
-		GLframe = 0;//フレーム数をリセット
-	}
 	glutSetWindow(mainWindowID);
 	glutPostRedisplay();
 	glutSetWindow(projectionWindowID);
@@ -87,6 +73,8 @@ int main(int argc, char** argv)
 		SWP_SHOWWINDOW);
 
 	glutIdleFunc(idleEvent);		//	ここで登録される関数は特定ウィンドウに依存しない
+
+	glewInit();
 
 	//namedWindow("ProjectorWindow", CV_WINDOW_NORMAL);
 	glutMainLoop();

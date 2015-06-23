@@ -26,6 +26,11 @@ float cameraDistance = 0, cameraX = 0, cameraY = 0;		//	カメラ原点からのZ, X, Y 
 int xBegin, yBegin;				//	ドラッグ開始位置
 bool cameraLoop = true;
 
+//	fps計測
+static int GLframe = 0; //フレーム数
+static int GLtimenow = 0;//経過時間
+static int GLtimebase = 0;//計測開始時間
+
 void mainLoop()
 {
 	if (cameraLoop)
@@ -70,6 +75,19 @@ void mainLoop()
 	}
 	glEnd();
 
+	//	FPS計測
+	GLframe++; //フレーム数を＋１
+	GLtimenow = glutGet(GLUT_ELAPSED_TIME);//経過時間を取得
+
+	static char str[] = "";
+	GLfloat color[] = { 1.0, 1.0, 1.0 };
+	if (GLtimenow - GLtimebase > 1000)      //１秒以上たったらfpsを出力
+	{
+		sprintf_s(str, 50, "fps:%f\r", GLframe*1000.0 / (GLtimenow - GLtimebase));
+		GLtimebase = GLtimenow;//基準時間を設定                
+		GLframe = 0;//フレーム数をリセット
+	}
+	render_string(0, 0, str, color);
 
 	glutSwapBuffers();
 }

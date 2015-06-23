@@ -3,8 +3,8 @@
 
 #include <OpenCVAdapter.hpp>
 #include <KinectV1Adapter.h>
-#include <gl/freeglut.h>
 #include "OpenGLDrawing.h"
+#include <gl/freeglut.h>
 #include "CalibrationEngine.h"
 #include "HomographicImage.h"
 #include "TextureMappingEngine.h"

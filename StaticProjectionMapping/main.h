@@ -4,6 +4,7 @@
 #include <Windows.h>
 #include "MainWindow.h"
 #include "ProjectionWindow.h"
+#include "OpenGLDrawing.h"
 
 //	マルチウィンドウ関係
 int mainWindowID, projectionWindowID;
