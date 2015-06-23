@@ -19,9 +19,12 @@ void projectionReshapeEvent(int w, int h)
 
 	glMatrixMode(GL_PROJECTION);
 	glLoadIdentity();
-	gluPerspective(40.0, (double)w / h, 0.1, 100.0);
+	gluPerspective(PROJ_FOVY_X, (double)w / h, 0.1, 100.0);
 
-	gluLookAt(0, 2, 5, 0, 0, 0, 0, 1, 0);
+	gluLookAt(
+		0, 0, 0,
+		0, 0, 1,
+		0, 1, 0);
 }
 
 void projectionKeyEvent(unsigned char key, int x, int y)

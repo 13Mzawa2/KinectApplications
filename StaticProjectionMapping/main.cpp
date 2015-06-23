@@ -58,7 +58,7 @@ int main(int argc, char** argv)
 	//	コールバック関数登録
 	addProjectionCallbackFunc();
 	//	初期設定
-	glClearColor(0., 0., 0., 1.0);		//	black
+	glClearColor(0.5, 0.5, 0.5, 1.0);		//	gray
 	glEnable(GL_DEPTH_TEST);
 	////	メインでないウィンドウを全画面表示にする
 	//GLのデバイスコンテキストハンドル取得

@@ -9,6 +9,7 @@
 #include "HomographicImage.h"
 #include "TextureMappingEngine.h"
 
+
 //	自作処理エンジン
 extern KinectV1 kSensor;
 extern CalibrationEngine ce;
@@ -23,7 +24,7 @@ extern cv::Mat cloudImg;
 //	距離に関するパラメータ　単位：m
 extern const double glZNear;		//	カメラからの最小距離
 extern const double glZFar;		//	カメラからの最大距離
-extern const int glFovy;			//	カメラの視野角(degree)
+extern double glFovy;			//	カメラの視野角(degree)
 
 //	MainWindow操作のためのパラメータ
 extern int FormWidth;			//	フォームの幅
@@ -32,11 +33,15 @@ extern int mButton;					//	ドラッグしているボタンID
 extern float twist, elevation, azimuth;						//	roll, pitch, yaw
 extern float cameraDistance, cameraX, cameraY;		//	カメラ原点からのZ, X, Y 距離
 extern int xBegin, yBegin;				//	ドラッグ開始位置
-extern bool cameraLoop;
+extern bool cameraLoop;				//	Kinectへのアクセス許可
+extern bool projectorView;			//	プロジェクタ座標系に切り替え
 
+//	処理まとめ用
+void getFrames();
 //	UIのための関数群
 void polarview();
 void textureMapping();
+void changeViewPoint();		//	カメラ視点 <--> プロジェクタ視点を切り替える
 //	コールバック関数
 void mainLoop();
 void mainReshapeEvent(int w, int h);

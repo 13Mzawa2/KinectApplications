@@ -15,7 +15,7 @@ cv::Mat cloudImg;
 //	距離に関するパラメータ　単位：m
 const double glZNear = 0.001;		//	カメラからの最小距離
 const double glZFar = 10.0;		//	カメラからの最大距離
-const int glFovy = 45;			//	カメラの視野角(degree)
+double glFovy = 45;			//	カメラの視野角(degree)
 
 //	MainWindow操作のためのパラメータ
 int FormWidth = 640;			//	フォームの幅
@@ -25,6 +25,7 @@ float twist, elevation, azimuth;						//	roll, pitch, yaw
 float cameraDistance = 0, cameraX = 0, cameraY = 0;		//	カメラ原点からのZ, X, Y 距離
 int xBegin, yBegin;				//	ドラッグ開始位置
 bool cameraLoop = true;
+bool projectorView = false;		//	最初はカメラビュー
 
 //	fps計測
 static int GLframe = 0; //フレーム数
@@ -35,45 +36,22 @@ void mainLoop()
 {
 	if (cameraLoop)
 	{
-		//	Kinectからの読込
-		kSensor.waitFrames();
-		kSensor.getColorFrame(cameraImg);
-		kSensor.getDepthFrameCoordinated(depthImg);
-		//blur(depthImg, depthImg, Size(11,11));			//	デプスマップのノイズ対策（橋本ら）
-		//kSensor.cvtDepth2Gray(depthImg, depthGrayImg);
-		//imshow("cam", cameraImg);
-		//imshow("depth", depthGrayImg);
-		//flip(depthGrayImg, depthGrayImg, 1);
-		kSensor.cvtDepth2Cloud(depthImg, cloudImg);
-		kSensor.releaseFrames();
-
+		getFrames();
 	}
 	//	OpenGLで描画
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	glLoadIdentity();
 	gluLookAt(
 		0, 0, 0,				//	視点位置
-		0, 0, 10.0,				//	注視点
+		0, 0, 10.0,			//	注視点
 		0, 1.0, 0);				//	画面の上を表すベクトル
 
-	//	視点の変更
+	//	マウスによる視点の変更
 	polarview();
 	//	座標軸の描画
 	drawGlobalXYZ(1.0, 3.0);
-
-	glPointSize(1);
-	glBegin(GL_POINTS);
-	for (int y = 0; y < cloudImg.rows; y++)
-	{
-		for (int x = 0; x < cloudImg.cols; x++)
-		{
-			Vec3f cloudPoint = cloudImg.at<Vec3f>(y, x);
-			if (cloudPoint[2] == 0) continue;
-			glColor3d(matR(cameraImg, x, y) / 255.0, matG(cameraImg, x, y) / 255.0, matB(cameraImg, x, y) / 255.0);
-			glVertex3d(cloudPoint[0], cloudPoint[1], cloudPoint[2]);
-		}
-	}
-	glEnd();
+	//	PointCloudの描画
+	renderPointCloud(cloudImg, cameraImg);
 
 	//	FPS計測
 	GLframe++; //フレーム数を＋１
@@ -116,6 +94,9 @@ void mainKeyEvent(unsigned char key, int x, int y)
 		twist = 0; elevation = 0; azimuth = 0;
 		cameraDistance = 0, cameraX = 0, cameraY = 0;
 		break;
+	case 'p':
+		changeViewPoint();
+		break;
 	case VK_ESCAPE:
 		kSensor.shutdown();
 		cv::destroyAllWindows();
@@ -156,11 +137,12 @@ void mainMotionEvent(int x, int y)
 		elevation -= (float)yDisp / 2.0;
 		break;
 	case GLUT_MIDDLE_BUTTON:
-		cameraX -= (float)xDisp / 40.0;
-		cameraY += (float)yDisp / 40.0;
+		cameraX -= (float)xDisp / 100.0;
+		cameraY -= (float)yDisp / 100.0;
 		break;
 	case GLUT_RIGHT_BUTTON:
-		cameraDistance += xDisp / 40.0;
+		twist -= (float)xDisp / 2.0;
+		cameraDistance += yDisp / 100.0;
 		break;
 	}
 	xBegin = x;
@@ -174,10 +156,10 @@ void mainMotionEvent(int x, int y)
 //	視点変更
 void polarview()
 {
-	glTranslatef(cameraX, cameraY, cameraDistance);
 	glRotatef(-twist, 0.0, 0.0, 1.0);			//	roll
 	glRotatef(-elevation, 1.0, 0.0, 0.0);		//	pitch
 	glRotatef(-azimuth, 0.0, 1.0, 0.0);			//	yaw
+	glTranslatef(cameraX, cameraY, cameraDistance);
 }
 //	3枚の図形を貼り付ける
 void textureMapping()
@@ -185,4 +167,44 @@ void textureMapping()
 	cameraLoop = false;
 	tme.staticTextureMapping(kSensor);
 	cameraLoop = true;
+}
+//	視点の切り替え
+void changeViewPoint()
+{
+	projectorView = !projectorView;
+	stringstream ss;
+	if (projectorView)
+	{
+		ss << "プロジェクタ";
+		glFovy = 21.24;
+		glutReshapeWindow(CAMERA_WINDOW_HEIGHT * PROJECTOR_WINDOW_WIDTH/PROJECTOR_WINDOW_HEIGHT, CAMERA_WINDOW_HEIGHT);
+	}
+	else
+	{
+		ss << "カメラ";
+		glFovy = 45.0;
+		glutReshapeWindow(CAMERA_WINDOW_WIDTH, CAMERA_WINDOW_HEIGHT);
+	}
+	cout << ss.str() << "座標に切り替えました" << endl;
+	cout << "現在の座標" << endl;
+	cout << " - Translate(x, y, z): " << cameraX << "," << cameraY << "," << cameraDistance << endl;
+	cout << " - Rotate(roll, pitch, yaw): " << -twist << "," << -elevation << "," << -azimuth << endl;
+}
+//----------------------------------------
+//		処理まとめ用関数
+//----------------------------------------
+void getFrames()
+{
+	//	Kinectからの読込
+	kSensor.waitFrames();
+	kSensor.getColorFrame(cameraImg);
+	kSensor.getDepthFrameCoordinated(depthImg);
+	//blur(depthImg, depthImg, Size(11,11));			//	デプスマップのノイズ対策（橋本ら）
+	//kSensor.cvtDepth2Gray(depthImg, depthGrayImg);
+	//imshow("cam", cameraImg);
+	//imshow("depth", depthGrayImg);
+	//flip(depthGrayImg, depthGrayImg, 1);
+	kSensor.cvtDepth2Cloud(depthImg, cloudImg);
+	kSensor.releaseFrames();
+
 }
