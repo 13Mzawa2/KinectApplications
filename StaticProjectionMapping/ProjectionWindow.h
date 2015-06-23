@@ -12,9 +12,16 @@
 #define PROJ_WIN_HEIGHT	1024
 #define PROJ_FOVY_X		21.24
 
+//	Projection Windowのためのパラメータ
+extern int projButton;
+extern int projXBegin;
+extern int projYBegin;
+
 //	コールバック関数
 void projectionLoop();
 void projectionKeyEvent(unsigned char key, int x, int y);
 void projectionReshapeEvent(int w, int h);
+void projectionMouseEvent(int button, int state, int x, int y);
+void projectionMotionEvent(int x, int y);
 
 #endif //	PROJECTIONWINDOW_H_

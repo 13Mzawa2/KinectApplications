@@ -25,6 +25,8 @@ void addProjectionCallbackFunc()
 	glutDisplayFunc(projectionLoop);
 	glutReshapeFunc(projectionReshapeEvent);			//	ウィンドウの再描画
 	glutKeyboardFunc(projectionKeyEvent);
+	glutMouseFunc(projectionMouseEvent);
+	glutMotionFunc(projectionMotionEvent);
 }
 
 int main(int argc, char** argv)
