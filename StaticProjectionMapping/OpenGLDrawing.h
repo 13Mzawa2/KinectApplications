@@ -1,7 +1,7 @@
 #ifndef OPENGLDRAWING_H_
 #define OPENGLDRAWING_H_
 
-#include <gl\glut.h>
+#include <GL\freeglut.h>
 
 //void drawGlobalXYZ(GLfloat length, GLfloat width);
 
@@ -20,5 +20,19 @@ inline void drawGlobalXYZ(GLfloat length, GLfloat width)
 	glVertex3d(0, 0, length);
 	glEnd();
 }
+
+inline void render_string(float x, float y, const char* string, GLfloat *colorv)
+{
+	glPushMatrix();
+
+	float z = -1.0f;
+	glColor3fv(colorv);
+	glRasterPos3f(x, y, z);
+	char* p = (char*)string;
+	while (*p != '\0') glutBitmapCharacter(GLUT_BITMAP_HELVETICA_18, *p++);
+	
+	glPopMatrix();
+}
+
 
 #endif //	OPENGLDRAWING_H_

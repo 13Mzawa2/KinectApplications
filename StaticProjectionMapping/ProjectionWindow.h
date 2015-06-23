@@ -2,7 +2,7 @@
 #define PROJECTIONWINDOW_H_
 
 #include <OpenCVAdapter.hpp>
-#include <gl/glut.h>
+#include <gl/freeglut.h>
 #include "OpenGLDrawing.h"
 
 #define PROJ_WIN_POS_X	1600
