@@ -23,5 +23,6 @@ void projectionKeyEvent(unsigned char key, int x, int y);
 void projectionReshapeEvent(int w, int h);
 void projectionMouseEvent(int button, int state, int x, int y);
 void projectionMotionEvent(int x, int y);
+void projectionMouseWheelEvent(int wheelNum, int dir, int x, int y);
 
 #endif //	PROJECTIONWINDOW_H_

@@ -27,6 +27,7 @@ void addProjectionCallbackFunc()
 	glutKeyboardFunc(projectionKeyEvent);
 	glutMouseFunc(projectionMouseEvent);
 	glutMotionFunc(projectionMotionEvent);
+	glutMouseWheelFunc(projectionMouseWheelEvent);			//	マウスホイール
 }
 
 int main(int argc, char** argv)

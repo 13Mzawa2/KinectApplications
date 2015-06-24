@@ -3,7 +3,10 @@
 
 #include <GLEW\glew.h>
 #include <GL\freeglut.h>
+#include "Quaternion.h"
 #include <OpenCVAdapter.hpp>
+
+#define GL_PI CV_PI
 
 #pragma comment(lib, "glew32.lib")
 
@@ -25,20 +28,33 @@ inline void renderPointCloud(cv::Mat pointcloud, cv::Mat colorData)
 	glEnd();
 }
 
+#define DRAW_FLAG_X	0x1
+#define DRAW_FLAG_Y	0x2
+#define DRAW_FLAG_Z	0x4
+
 //	ç¿ïWånÇÃï`âÊ
-inline void drawGlobalXYZ(GLfloat length, GLfloat width)
+inline void drawGlobalXYZ(GLfloat length, GLfloat width, int flag = DRAW_FLAG_X | DRAW_FLAG_Y | DRAW_FLAG_Z)
 {
 	glLineWidth(width);
 	glBegin(GL_LINES);
-	glColor3d(1, 0, 0);
-	glVertex3d(0, 0, 0);
-	glVertex3d(length, 0, 0);
-	glColor3d(0, 1, 0);
-	glVertex3d(0, 0, 0);
-	glVertex3d(0, length, 0);
-	glColor3d(0, 0, 1);
-	glVertex3d(0, 0, 0);
-	glVertex3d(0, 0, length);
+	if (flag & DRAW_FLAG_X)
+	{
+		glColor3d(1, 0, 0);
+		glVertex3d(0, 0, 0);
+		glVertex3d(length, 0, 0);
+	}
+	if (flag & DRAW_FLAG_Y)
+	{
+		glColor3d(0, 1, 0);
+		glVertex3d(0, 0, 0);
+		glVertex3d(0, length, 0);
+	}
+	if (flag & DRAW_FLAG_Z)
+	{
+		glColor3d(0, 0, 1);
+		glVertex3d(0, 0, 0);
+		glVertex3d(0, 0, length);
+	}
 	glEnd();
 }
 
@@ -97,12 +113,14 @@ inline static void myBox(double x, double y, double z)
 		}
 	}
 	glEnd();
+	//	ó÷äsê¸
 	glColor3d(0.0, 0.0, 0.0);
 	glLineWidth(3.0);
 	glBegin(GL_LINES);
 	for (j = 0; j < 6; ++j) {
-		for (i = 4; --i >= 0;) {
+		for (i = 0; i < 3; i ++) {
 			glVertex3dv(vertex[face[j][i]]);
+			glVertex3dv(vertex[face[j][i+1]]);
 		}
 	}
 	glEnd();
