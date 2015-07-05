@@ -41,31 +41,27 @@ void mainLoop()
 	//	OpenGLで描画
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	glLoadIdentity();
-	gluLookAt(
-		0, 0, 0,				//	視点位置
-		0, 0, 10.0,			//	注視点
-		0, 1.0, 0);				//	画面の上を表すベクトル
+	//	カメラ画像を描画
+	Mat camera_copy;
+	flip(cameraImg, camera_copy, 1);
+	renderBackgroundImage(camera_copy);
+	//glPushMatrix();
+	//{
+	//	gluLookAt(
+	//		0, 0, 0,				//	視点位置
+	//		0, 0, 10.0,			//	注視点
+	//		0, 1.0, 0);				//	画面の上を表すベクトル
+	//	//	マウスによる視点の変更
+	//	polarview();
+	//	//	座標軸の描画
+	//	drawGlobalXYZ(1.0, 3.0);
+	//	//	PointCloudの描画
+	//	renderPointCloud(cloudImg, cameraImg);
 
-	//	マウスによる視点の変更
-	polarview();
-	//	座標軸の描画
-	drawGlobalXYZ(1.0, 3.0);
-	//	PointCloudの描画
-	renderPointCloud(cloudImg, cameraImg);
+	//}
+	//glPopMatrix();
 
-	//	FPS計測
-	GLframe++; //フレーム数を＋１
-	GLtimenow = glutGet(GLUT_ELAPSED_TIME);//経過時間を取得
-
-	static char str[] = "";
-	GLfloat color[] = { 1.0, 1.0, 1.0 };
-	if (GLtimenow - GLtimebase > 1000)      //１秒以上たったらfpsを出力
-	{
-		sprintf_s(str, 50, "fps:%f\r", GLframe*1000.0 / (GLtimenow - GLtimebase));
-		GLtimebase = GLtimenow;//基準時間を設定                
-		GLframe = 0;//フレーム数をリセット
-	}
-	render_string(0, 0, str, color);
+	showFPS();
 
 	glutSwapBuffers();
 }
@@ -190,6 +186,24 @@ void changeViewPoint()
 	cout << " - Translate(x, y, z): " << cameraX << "," << cameraY << "," << cameraDistance << endl;
 	cout << " - Rotate(roll, pitch, yaw): " << -twist << "," << -elevation << "," << -azimuth << endl;
 }
+//	FPS表示
+void showFPS()
+{
+	//	FPS計測
+	GLframe++; //フレーム数を＋１
+	GLtimenow = glutGet(GLUT_ELAPSED_TIME);//経過時間を取得
+
+	static char str[] = "";
+	GLfloat color[] = { 1.0, 1.0, 1.0 };
+	if (GLtimenow - GLtimebase > 1000)      //１秒以上たったらfpsを出力
+	{
+		sprintf_s(str, 50, "fps:%f\r", GLframe*1000.0 / (GLtimenow - GLtimebase));
+		GLtimebase = GLtimenow;//基準時間を設定                
+		GLframe = 0;//フレーム数をリセット
+	}
+	render_string(0, 0, str, color);
+}
+
 //----------------------------------------
 //		処理まとめ用関数
 //----------------------------------------

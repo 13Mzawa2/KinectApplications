@@ -1,14 +1,16 @@
+//	PC画面のメインウィンドウ
+
 #ifndef MAINWINDOW_H_
 #define MAINWINDOW_H_
 
 #include <OpenCVAdapter.hpp>
 #include <KinectV1Adapter.h>
 #include "OpenGLDrawing.h"
-#include <gl/freeglut.h>
 #include "CalibrationEngine.h"
 #include "HomographicImage.h"
 #include "TextureMappingEngine.h"
-
+#include "Quaternion.h"
+#include "GlobalVariables.h"
 
 //	自作処理エンジン
 extern KinectV1 kSensor;
@@ -36,8 +38,9 @@ extern int xBegin, yBegin;				//	ドラッグ開始位置
 extern bool cameraLoop;				//	Kinectへのアクセス許可
 extern bool projectorView;			//	プロジェクタ座標系に切り替え
 
-//	処理まとめ用
+//	処理まとめ
 void getFrames();
+void showFPS();
 //	UIのための関数群
 void polarview();
 void textureMapping();

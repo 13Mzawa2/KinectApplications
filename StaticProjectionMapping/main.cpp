@@ -2,6 +2,12 @@
 
 using namespace cv;
 
+Marker marker;
+
+void artkInit()
+{
+
+}
 
 void idleEvent()
 {
@@ -51,7 +57,7 @@ int main(int argc, char** argv)
 	//	初期設定
 	glClearColor(0., 0., 0., 1.0);		//	black
 	glEnable(GL_DEPTH_TEST);
-
+	artkInit();
 
 	////	プロジェクタ投影用ウィンドウ
 	glutInitWindowPosition(1600, 0);

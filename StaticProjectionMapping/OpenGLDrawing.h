@@ -9,6 +9,25 @@
 #define GL_PI CV_PI
 
 #pragma comment(lib, "glew32.lib")
+//	与えられたイメージをバックグラウンドに描画
+inline void renderBackgroundImage(cv::Mat image)
+{
+	cv::Mat dstImg;
+	cv::cvtColor(image, dstImg, CV_BGR2RGB);	//	OpenGLはRGB並び
+	cv::flip(dstImg, dstImg, 0);		//	OpenGLは左下原点
+	//	投影行列の初期化
+	glMatrixMode(GL_PROJECTION);
+	glDisable(GL_DEPTH_TEST);
+	glPushMatrix();
+	{
+		glLoadIdentity();
+		glRasterPos2i(-1, -1);		//	二次元画像原点を左下に設定
+		glDrawPixels(dstImg.cols, dstImg.rows, GL_RGB, GL_UNSIGNED_BYTE, dstImg.data);
+	}
+	glPopMatrix();
+	glMatrixMode(GL_MODELVIEW);
+	glEnable(GL_DEPTH_TEST);
+}
 
 //	与えられた点群データを描画
 inline void renderPointCloud(cv::Mat pointcloud, cv::Mat colorData)

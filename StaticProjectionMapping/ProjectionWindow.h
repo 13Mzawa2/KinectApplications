@@ -1,9 +1,12 @@
+//	プロジェクタ側に投影する全画面表示のウィンドウ
+
 #ifndef PROJECTIONWINDOW_H_
 #define PROJECTIONWINDOW_H_
 
 #include <OpenCVAdapter.hpp>
 #include "OpenGLDrawing.h"
 #include <gl/freeglut.h>
+#include "GlobalVariables.h"
 #//include "CalibrationEngine.h"
 
 #define PROJ_WIN_POS_X	1600

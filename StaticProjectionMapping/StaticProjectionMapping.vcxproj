@@ -41,13 +41,13 @@
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <LinkIncremental>true</LinkIncremental>
-    <IncludePath>../include;$(KINECTSDK10_DIR)inc;$(VC_IncludePath);$(OPENCV_INC);$(VC_IncludePath);$(WindowsSDK_IncludePath);</IncludePath>
-    <LibraryPath>$(KINECTSDK10_DIR)lib\x86;$(OPENCV_LIB);$(VC_LibraryPath_x86);$(WindowsSDK_LibraryPath_x86);</LibraryPath>
+    <IncludePath>C:\ARToolKit\include;../include;$(KINECTSDK10_DIR)inc;$(VC_IncludePath);$(OPENCV_INC);$(WindowsSDK_IncludePath)</IncludePath>
+    <LibraryPath>C:\ARToolKit\lib;$(KINECTSDK10_DIR)lib\x86;$(OPENCV_LIB);$(VC_LibraryPath_x86);$(WindowsSDK_LibraryPath_x86)</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <LinkIncremental>false</LinkIncremental>
-    <IncludePath>../include;$(KINECTSDK10_DIR)inc;$(VC_IncludePath);$(OPENCV_INC);$(VC_IncludePath);$(WindowsSDK_IncludePath);</IncludePath>
-    <LibraryPath>$(KINECTSDK10_DIR)lib\x86;$(OPENCV_LIB);$(VC_LibraryPath_x86);$(WindowsSDK_LibraryPath_x86);</LibraryPath>
+    <IncludePath>C:\ARToolKit\include;../include;$(KINECTSDK10_DIR)inc;$(VC_IncludePath);$(OPENCV_INC);$(WindowsSDK_IncludePath)</IncludePath>
+    <LibraryPath>C:\ARToolKit\lib;$(KINECTSDK10_DIR)lib\x86;$(OPENCV_LIB);$(VC_LibraryPath_x86);$(WindowsSDK_LibraryPath_x86)</LibraryPath>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
@@ -93,7 +93,9 @@
   <ItemGroup>
     <ClInclude Include="..\include\KinectV1Adapter.h" />
     <ClInclude Include="..\include\OpenCVAdapter.hpp" />
+    <ClInclude Include="ARTKLinker.h" />
     <ClInclude Include="CalibrationEngine.h" />
+    <ClInclude Include="GlobalVariables.h" />
     <ClInclude Include="HomographicImage.h" />
     <ClInclude Include="main.h" />
     <ClInclude Include="MainWindow.h" />

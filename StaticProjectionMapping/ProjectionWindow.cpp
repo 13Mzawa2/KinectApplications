@@ -13,6 +13,10 @@ void projectionLoop()
 
 	glMatrixMode(GL_MODELVIEW);
 	glLoadIdentity();
+	gluLookAt(
+		0, 0, 0,
+		0, 0, 1,
+		0, 1, 0);
 
 	//---------------------------
 	//	‚±‚±‚Å•`‰æ
@@ -38,10 +42,6 @@ void projectionReshapeEvent(int w, int h)
 	glLoadIdentity();
 	gluPerspective(PROJ_FOVY_X, (double)w / h, 0.1, 100.0);
 
-	gluLookAt(
-		0, 0, 0,
-		0, 0, 1,
-		0, 1, 0);
 }
 
 void projectionKeyEvent(unsigned char key, int x, int y)
