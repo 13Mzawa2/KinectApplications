@@ -2,8 +2,10 @@
 
 using namespace cv;
 
+OBJMESH mesh;		//	ペットボトルメッシュ
 Marker marker = { "Data/markerB.pat", -1, 0, 0, MARKER_SIZE, { 0.0, 0.0 } };
 ARGL_CONTEXT_SETTINGS_REF gArglSettings;
+ARParam kinectParam;		//	kinectのカメラパラメータ
 static GLdouble kinectCameraMat[3][4] = {
 	{ 526.37013657, 0.00000000, 313.68782938, 0.0000000 },
 	{ 0.00000000, 526.37013657, 259.01834898, 0.0000000 },
@@ -24,19 +26,26 @@ void artkInit()
 		return;
 	}
 	//	Kinectのカメラパラメータ設定(直接入力)
-	kinectParam.xsize = 640;
-	kinectParam.ysize = 480;
-	for (int i = 0; i < 3; i++)
+	ARParam wparam;
+	//wparam.xsize = 640;
+	//wparam.ysize = 480;
+	//for (int i = 0; i < 3; i++)
+	//{
+	//	for (int j = 0; j < 4; j++)
+	//	{
+	//		wparam.mat[i][j] = kinectCameraMat[i][j];
+	//	}
+	//}
+	//for (int i = 0; i < 4; i++)
+	//{
+	//	wparam.dist_factor[i] = kinectDistCoeffs[i];
+	//}
+	if (arParamLoad("data/webcam_param.dat", 1, &wparam) < 0)
 	{
-		for (int j = 0; j < 4; j++)
-		{
-			kinectParam.mat[i][j] = kinectCameraMat[i][j];
-		}
+		cout << "カメラパラメータの読込に失敗しました" << endl;
+		exit(-1);
 	}
-	for (int i = 0; i < 4; i++)
-	{
-		kinectParam.dist_factor[i] = kinectDistCoeffs[i];
-	}
+	arParamChangeSize(&wparam, 640, 480, &kinectParam);
 	arInitCparam(&kinectParam);
 }
 
@@ -117,7 +126,10 @@ int main(int argc, char** argv)
 
 	glewInit();
 
-	//namedWindow("ProjectorWindow", CV_WINDOW_NORMAL);
+	//	objファイルのロード
+	if (!mesh.LoadFile("data/drop_x001.obj"))
+		return 0;
+
 	glutMainLoop();
 
 	return 0;

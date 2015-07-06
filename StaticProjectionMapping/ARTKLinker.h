@@ -2,7 +2,7 @@
 #define ARTKLINKER_H_
 
 #include <AR\ar.h>
-#include <AR\video.h>
+//#include <AR\video.h>
 #include <AR\config.h>
 //#include <AR\gsub.h>
 #include <AR\gsub_lite.h>
@@ -16,7 +16,7 @@
 
 #pragma comment(lib, "libAR" AR_EXT)
 #pragma comment(lib, "libARgsub_lite" AR_EXT)
-#pragma comment(lib, "libARvideo" AR_EXT)
+//#pragma comment(lib, "libARvideo" AR_EXT)
 
 #pragma comment(lib, "opengl32.lib")
 #pragma comment(lib, "glu32.lib")

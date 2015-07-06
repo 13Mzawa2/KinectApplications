@@ -91,6 +91,7 @@
     <ClCompile Include="HomographicImage.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="MainWindow.cpp" />
+    <ClCompile Include="OBJLoader.cpp" />
     <ClCompile Include="ProjectionWindow.cpp" />
     <ClCompile Include="TextureMappingEngine.cpp" />
   </ItemGroup>
@@ -103,6 +104,7 @@
     <ClInclude Include="HomographicImage.h" />
     <ClInclude Include="main.h" />
     <ClInclude Include="MainWindow.h" />
+    <ClInclude Include="OBJLoader.h" />
     <ClInclude Include="OpenGLDrawing.h" />
     <ClInclude Include="ProjectionWindow.h" />
     <ClInclude Include="Quaternion.h" />

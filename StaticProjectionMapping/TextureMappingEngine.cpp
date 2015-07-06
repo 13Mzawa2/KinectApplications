@@ -14,10 +14,10 @@ TextureMappingEngine::~TextureMappingEngine()
 void TextureMappingEngine::staticTextureMapping(KinectV1 kinect)
 {
 	Mat temp;
-	temp = imread("kinoko.jpg");
+	temp = imread("Data/kinoko.jpg");
 	hImg[0].loadTexture(temp);
-	hImg[1].loadTexture(imread("takenoko.jpg"));
-	hImg[2].loadTexture(imread("takenoko.jpg"));
+	hImg[1].loadTexture(imread("Data/takenoko.jpg"));
+	hImg[2].loadTexture(imread("Data/takenoko.jpg"));
 	for (int idx = 0; idx < 3; idx++)
 		hImg[idx].initProPoints();
 	namedWindow("ControlWindow");
