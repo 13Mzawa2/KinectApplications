@@ -14,6 +14,7 @@ static GLdouble kinectCameraMat[3][4] = {
 static GLdouble kinectDistCoeffs[4] = { 
 	0.18126525, -0.39866885, 0.00000000, 0.00000000
 };
+
 void artkInit()
 {
 	if ((gArglSettings = arglSetupForCurrentContext()) == NULL) {
@@ -107,7 +108,7 @@ int main(int argc, char** argv)
 	//	コールバック関数登録
 	addProjectionCallbackFunc();
 	//	初期設定
-	glClearColor(0.0, 0.0, 0.0, 1.0);		//	gray
+	glClearColor(0.5, 0.5, 0.5, 1.0);		//	gray
 	glEnable(GL_DEPTH_TEST);
 	////	メインでないウィンドウを全画面表示にする
 	//GLのデバイスコンテキストハンドル取得
@@ -127,7 +128,7 @@ int main(int argc, char** argv)
 	glewInit();
 
 	//	objファイルのロード
-	if (!mesh.LoadFile("data/drop_x001.obj"))
+	if (!mesh.LoadFile("data/drop_x005.obj"))
 		return 0;
 
 	glutMainLoop();

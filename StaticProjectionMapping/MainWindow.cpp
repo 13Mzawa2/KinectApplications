@@ -98,16 +98,26 @@ void mainLoop()
 
 		//	モデル描画
 		GLdouble glTransMat[16];
+		arglCameraViewRH(marker.patt_trans, glTransMat, 1.0);	//	マーカー位置の変換行列
+		
 		glPushMatrix();
-		glEnable(GL_DEPTH_TEST);
-		glMatrixMode(GL_MODELVIEW);
-		arglCameraViewRH(marker.patt_trans, glTransMat, 1.0);
-		glLoadMatrixd(glTransMat);		//	マーカー位置へ移動
-		glTranslated(0.0, 0.0, MARKER_SIZE / 2);
-		glColor3d(1.0, 0.0, 0.0);
-		//glutSolidCube(MARKER_SIZE);
-		mesh.Draw();
-		glDisable(GL_DEPTH_TEST);
+		{
+			glEnable(GL_DEPTH_TEST);
+			setLighting();
+			glLoadMatrixd(glTransMat);		//	マーカー位置へ移動
+			glTranslated(0.0, 0.0, MARKER_SIZE / 2);
+
+			GLfloat red[] = { 0.8, 0.2, 0.2, 1.0 };
+			glMaterialfv(GL_FRONT_AND_BACK, GL_AMBIENT_AND_DIFFUSE, red);
+			glutSolidCube(MARKER_SIZE);
+			//glRotated(180, 0.0, 1.0, 0.0);
+			//glTranslated(0.0, 0.0, 200.0);
+			//glutSolidCube(MARKER_SIZE);
+			//mesh.Draw();
+			glDisable(GL_LIGHTING);
+			glDisable(GL_LIGHT0);
+			glDisable(GL_DEPTH_TEST);
+		}
 		glPopMatrix();
 	}
 	else marker.visible = 0;
@@ -287,4 +297,19 @@ void getFrames()
 	kSensor.cvtDepth2Cloud(depthImg, cloudImg);
 	kSensor.releaseFrames();
 
+}
+
+void setLighting()
+{
+	GLfloat lightAmbientColor[4] = { 0.2f, 0.2f, 0.2f, 1.0f };
+	GLfloat lightDiffuseColor[4] = { 1.0f, 1.0f, 1.0f, 1.0f };
+	GLfloat lightSpecularColor[4] = { 0.8f, 0.8f, 0.8f, 1.0f };
+	GLfloat lightPosition[4] = { 0.0f, 1000.0f, 1000.0f, 0.0f };
+
+	glEnable(GL_LIGHTING);
+	glEnable(GL_LIGHT0);
+	glLightfv(GL_LIGHT0, GL_POSITION, lightPosition);
+	glLightfv(GL_LIGHT0, GL_AMBIENT, lightAmbientColor);
+	glLightfv(GL_LIGHT0, GL_DIFFUSE, lightDiffuseColor);
+	glLightfv(GL_LIGHT0, GL_SPECULAR, lightSpecularColor);
 }

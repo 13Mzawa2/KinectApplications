@@ -41,6 +41,7 @@ extern bool projectorView;			//	プロジェクタ座標系に切り替え
 //	処理まとめ
 void getFrames();
 void showFPS();
+void setLighting();
 //	UIのための関数群
 void polarview();
 void textureMapping();
