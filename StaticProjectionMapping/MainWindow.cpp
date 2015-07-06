@@ -15,7 +15,8 @@ cv::Mat cloudImg;
 //	距離に関するパラメータ　単位：m
 const double glZNear = 0.001;		//	カメラからの最小距離
 const double glZFar = 10.0;		//	カメラからの最大距離
-double glFovy = 45;			//	カメラの視野角(degree)
+double glFovy = NUI_CAMERA_COLOR_NOMINAL_VERTICAL_FOV;			//	カメラの視野角(degree)
+ARParam kinectParam;		//	kinectのカメラパラメータ
 
 //	MainWindow操作のためのパラメータ
 int FormWidth = 640;			//	フォームの幅
@@ -43,24 +44,93 @@ void mainLoop()
 	glLoadIdentity();
 	//	カメラ画像を描画
 	Mat camera_copy;
-	flip(cameraImg, camera_copy, 1);
+	cvtColor(cameraImg, camera_copy, CV_BGRA2BGR);
+	flip(camera_copy, camera_copy, 1);
 	renderBackgroundImage(camera_copy);
+	////	カメラパラメータをもとに投影行列をロード
+	//glMatrixMode(GL_PROJECTION);
+	//glLoadIdentity();
+	//GLdouble glProjMat[16];
+	//arglCameraFrustumRH(&kinectParam, 0.01, 10.0, glProjMat);
+	//glLoadMatrixd(glProjMat);
+	//glMatrixMode(GL_MODELVIEW);
+
+	//	ARマーカー認識
+	Mat threshImg, cameraBGRA;
+	cvtColor(camera_copy, threshImg, CV_BGR2GRAY);
+	adaptiveThreshold(threshImg, threshImg, 255, ADAPTIVE_THRESH_MEAN_C, THRESH_BINARY, 75, 10);
+	cvtColor(threshImg, cameraBGRA, CV_GRAY2BGRA);
+	//imshow("確認",cameraBGRA);
+	ARUint8 *imgData = (ARUint8*)(cameraBGRA.data);
+	int thresh = 100;
+	ARMarkerInfo *marker_info;
+	int marker_num;				//	発見したマーカー候補の数
+	if (arDetectMarker(imgData, thresh, &marker_info, &marker_num) < 0)
+	{
+		cout << "異常終了\r";
+		exit(-1);
+	}
+	//	マーカー候補から一致度の高いものを抽出
+	int k = -1;
+	if (marker_num > 0)
+		cout << "Detected" << endl;
+	for (int j = 0; j < marker_num; j++)
+	{
+		if (marker.patt_id == marker_info[j].id)	//	marker[i]と最も一致度cfが高いマーカーを抽出
+		{
+			if (k == -1) k = j;
+			else if (marker_info[k].cf < marker_info[j].cf) k = j;
+		}
+	}
+	if (k != -1)		//	マーカーが見つかった
+	{
+		//	座標変換行列
+		if (marker.visible == 0)
+			arGetTransMat(&marker_info[k], marker.patt_center, marker.patt_width, marker.patt_trans);
+		else
+			arGetTransMatCont(&marker_info[k], marker.patt_trans, marker.patt_center, marker.patt_width, marker.patt_trans);
+		marker.visible = 1;
+
+		//	モデル描画
+		GLdouble glTransMat[16];
+		glPushMatrix();
+		glMatrixMode(GL_MODELVIEW);
+		arglCameraViewRH(marker.patt_trans, glTransMat, 1.0);
+		glLoadMatrixd(glTransMat);		//	マーカー位置へ移動
+		glTranslated(0.0, 0.0, MARKER_SIZE / 2);
+		glutSolidCube(MARKER_SIZE);
+		glPopMatrix();
+	}
+	else marker.visible = 0;
+
+	////	投影行列の初期化
+	//glMatrixMode(GL_PROJECTION);
+	//glDisable(GL_DEPTH_TEST);
 	//glPushMatrix();
 	//{
-	//	gluLookAt(
-	//		0, 0, 0,				//	視点位置
-	//		0, 0, 10.0,			//	注視点
-	//		0, 1.0, 0);				//	画面の上を表すベクトル
-	//	//	マウスによる視点の変更
-	//	polarview();
-	//	//	座標軸の描画
-	//	drawGlobalXYZ(1.0, 3.0);
-	//	//	PointCloudの描画
-	//	renderPointCloud(cloudImg, cameraImg);
-
+	//	glLoadIdentity();
+	//	glRasterPos2i(-1, -1);		//	二次元画像原点を左下に設定
+	//	glDrawPixels(cameraBGRA.cols, cameraBGRA.rows, GL_BGRA, GL_UNSIGNED_BYTE, arImage);
 	//}
 	//glPopMatrix();
+	//glMatrixMode(GL_MODELVIEW);
+	//glEnable(GL_DEPTH_TEST);
 
+	glPushMatrix();
+	{
+		gluLookAt(
+			0, 0, 0,				//	視点位置
+			0, 0, 10.0,			//	注視点
+			0, 1.0, 0);				//	画面の上を表すベクトル
+	//	//	マウスによる視点の変更
+	//	polarview();
+		//	座標軸の描画
+		//drawGlobalXYZ(1.0, 3.0);
+		//	PointCloudの描画
+		//renderPointCloud(cloudImg, cameraImg);
+
+	}
+	glPopMatrix();
 	showFPS();
 
 	glutSwapBuffers();

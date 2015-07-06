@@ -21,6 +21,8 @@ void TextureMappingEngine::staticTextureMapping(KinectV1 kinect)
 	for (int idx = 0; idx < 3; idx++)
 		hImg[idx].initProPoints();
 	namedWindow("ControlWindow");
+	namedWindow("ProjectorWindow", CV_WINDOW_FREERATIO);
+	moveWindow("ProjectorWindow", -1024, 0);
 	setMouseCallback("ControlWindow", modifyVertexCallback, 0);
 
 	Mat projectFrame = cv::Mat(Size(PROJECTOR_WINDOW_WIDTH, PROJECTOR_WINDOW_HEIGHT), CV_8UC3);
@@ -35,9 +37,9 @@ void TextureMappingEngine::staticTextureMapping(KinectV1 kinect)
 		kinect.releaseFrames();
 		flip(colorImg, colorImg, 1);		//	左右反転
 		//	画像のトリミングとヒストグラム平坦化
-		Mat colorImg_roi(colorImg, Rect(370, 140, 200, 250));
+		Mat colorImg_roi(colorImg, Rect(100, 80, 480, 320));
 		Mat colorImg_rescale;
-		resize(colorImg_roi, colorImg_rescale, Size(600, 750));
+		resize(colorImg_roi, colorImg_rescale, Size(750, 600));
 		cvtColor(colorImg_rescale, colorImg_rescale, CV_BGRA2BGR);
 		Mat colorPlanes[3];
 		split(colorImg_rescale, colorPlanes);

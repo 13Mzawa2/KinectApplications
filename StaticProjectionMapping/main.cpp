@@ -2,11 +2,42 @@
 
 using namespace cv;
 
-Marker marker;
-
+Marker marker = { "Data/markerB.pat", -1, 0, 0, MARKER_SIZE, { 0.0, 0.0 } };
+ARGL_CONTEXT_SETTINGS_REF gArglSettings;
+static GLdouble kinectCameraMat[3][4] = {
+	{ 526.37013657, 0.00000000, 313.68782938, 0.0000000 },
+	{ 0.00000000, 526.37013657, 259.01834898, 0.0000000 },
+	{ 0.00000000, 0.00000000, 1.00000000, 0.0000000 }
+};
+static GLdouble kinectDistCoeffs[4] = { 
+	0.18126525, -0.39866885, 0.00000000, 0.00000000
+};
 void artkInit()
 {
-
+	if ((gArglSettings = arglSetupForCurrentContext()) == NULL) {
+		fprintf(stderr, "main(): arglSetupForCurrentContext() returned error.\n");
+		exit(-1);
+	}
+	//	マーカーの読み込み
+	if ((marker.patt_id = arLoadPatt(marker.patt_name)) < 0)
+	{
+		return;
+	}
+	//	Kinectのカメラパラメータ設定(直接入力)
+	kinectParam.xsize = 640;
+	kinectParam.ysize = 480;
+	for (int i = 0; i < 3; i++)
+	{
+		for (int j = 0; j < 4; j++)
+		{
+			kinectParam.mat[i][j] = kinectCameraMat[i][j];
+		}
+	}
+	for (int i = 0; i < 4; i++)
+	{
+		kinectParam.dist_factor[i] = kinectDistCoeffs[i];
+	}
+	arInitCparam(&kinectParam);
 }
 
 void idleEvent()
@@ -60,17 +91,18 @@ int main(int argc, char** argv)
 	artkInit();
 
 	////	プロジェクタ投影用ウィンドウ
-	glutInitWindowPosition(1600, 0);
+	glutInitWindowPosition(PROJ_WIN_POS_X, PROJ_WIN_POS_Y);
 	glutInitWindowSize(PROJECTOR_WINDOW_WIDTH, PROJECTOR_WINDOW_HEIGHT);
 	glutInitDisplayMode(GLUT_RGBA | GLUT_DEPTH | GLUT_DOUBLE);
 	projectionWindowID = glutCreateWindow(windowName[1]);
 	//	コールバック関数登録
 	addProjectionCallbackFunc();
 	//	初期設定
-	glClearColor(0.5, 0.5, 0.5, 1.0);		//	gray
+	glClearColor(0.0, 0.0, 0.0, 1.0);		//	gray
 	glEnable(GL_DEPTH_TEST);
 	////	メインでないウィンドウを全画面表示にする
 	//GLのデバイスコンテキストハンドル取得
+	//glutSetWindow(projectionWindowID);
 	HDC glDc = wglGetCurrentDC();
 	//ウィンドウハンドル取得
 	HWND hWnd = WindowFromDC(glDc);

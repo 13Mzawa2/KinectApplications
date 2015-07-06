@@ -9,10 +9,10 @@
 #include "GlobalVariables.h"
 #//include "CalibrationEngine.h"
 
-#define PROJ_WIN_POS_X	1600
+#define PROJ_WIN_POS_X	-1024
 #define PROJ_WIN_POS_Y	0
-#define PROJ_WIN_WIDTH	768
-#define PROJ_WIN_HEIGHT	1024
+#define PROJ_WIN_WIDTH	1024
+#define PROJ_WIN_HEIGHT	768
 #define PROJ_FOVY_X		21.24
 
 //	Projection WindowÇÃÇΩÇﬂÇÃÉpÉâÉÅÅ[É^

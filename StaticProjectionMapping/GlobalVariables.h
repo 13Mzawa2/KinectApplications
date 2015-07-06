@@ -5,6 +5,10 @@
 
 #include "ARTKLinker.h"
 
+#define MARKER_SIZE 48.0f	//	mm
+
 extern Marker marker;		//	é¿ëÃÅFmain.cpp
+extern ARParam kinectParam;	//	MainWindow.cpp
+extern ARGL_CONTEXT_SETTINGS_REF gArglSettings;		//	main.cpp
 
 #endif //	GLOBALVAL_H_
