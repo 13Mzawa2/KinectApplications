@@ -133,7 +133,7 @@ inline static void myBox(double x, double y, double z)
 	}
 	glEnd();
 	//	ó÷äsê¸
-	glColor3d(0.0, 0.0, 0.0);
+	glColor3d(1.0, 1.0, 1.0);
 	glLineWidth(3.0);
 	glBegin(GL_LINES);
 	for (j = 0; j < 6; ++j) {

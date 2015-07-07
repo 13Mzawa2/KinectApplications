@@ -59,7 +59,7 @@ void mainLoop()
 	//	ARマーカー認識
 	Mat threshImg, cameraBGRA;
 	cvtColor(camera_copy, threshImg, CV_BGR2GRAY);
-	adaptiveThreshold(threshImg, threshImg, 255, ADAPTIVE_THRESH_MEAN_C, THRESH_BINARY, 75, 10);
+	adaptiveThreshold(threshImg, threshImg, 255, ADAPTIVE_THRESH_MEAN_C, THRESH_BINARY, 55, 10);
 	cvtColor(threshImg, cameraBGRA, CV_GRAY2BGRA);
 	ARUint8 *imgData = (ARUint8*)(cameraBGRA.data);
 	int thresh = 100;

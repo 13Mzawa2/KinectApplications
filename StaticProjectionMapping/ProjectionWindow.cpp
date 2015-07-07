@@ -33,15 +33,16 @@ void projectionLoop()
 		glMultMatrixd(glTransMat);		//	マーカー位置へ移動
 		glRotated(180, 0.0, 1.0, 0.0);
 		glTranslated(0.0, 0.0, 200.0);
+		//glTranslated(0.0, 0.0, -53.0);
 		//glutSolidCube(MARKER_SIZE);
 		mesh.Draw();
+		drawGlobalXYZ(200, 2.0, xyzDrawFlag);
+		//glColor4d(0.3, 0.4, 0.2, 1.0);
+		//myBox(150, 170, 105);
 		glDisable(GL_LIGHTING);
 		glDisable(GL_LIGHT0);
 		glDisable(GL_DEPTH_TEST);
 
-		//drawGlobalXYZ(0.3, 2.0, xyzDrawFlag);
-		//glColor3d(0.6, 0.8, 0.4);
-		//myBox(0.15, 0.175, 0.105);
 	}
 	glPopMatrix();
 
@@ -72,8 +73,8 @@ void projectionKeyEvent(unsigned char key, int x, int y)
 		objTx = 0; objTy = 0; objTz = 60.0;
 		break;
 	case 't':		//	tracking(現在はフィッティング済みの位置姿勢を入力)
-		current = Quaternion(-0.078, 0.351, -0.865, -0.351);
-		objTx = -0.006; objTy = 0.083; objTz = 1.555;
+		current = Quaternion(0.999, -0.0488, -0.0013, 0.0031);
+		objTx = 4.0; objTy = -137.0; objTz = 640.0;
 		break;
 	default:
 		break;
@@ -104,8 +105,8 @@ void projectionMotionEvent(int x, int y)
 	xDisp = x - projXBegin;
 	yDisp = y - projYBegin;
 
-	double dx = (double)xDisp / PROJ_WIN_WIDTH / 10.0,
-		dy = (double)yDisp / PROJ_WIN_HEIGHT / 10.0;
+	double dx = (double)xDisp / PROJ_WIN_WIDTH / 2.0,
+		dy = -(double)yDisp / PROJ_WIN_HEIGHT / 2.0;
 	double length = sqrt(dx*dx + dy*dy);	//	クォータニオンの長さ
 	double rad;
 	Quaternion after;
@@ -122,8 +123,8 @@ void projectionMotionEvent(int x, int y)
 		break;
 	case GLUT_MIDDLE_BUTTON:
 		xyzDrawFlag |= ((xDisp != 0)*DRAW_FLAG_X | (yDisp != 0)*DRAW_FLAG_Y);
-		objTx += (float)xDisp / 10.0;	//	mm単位
-		objTy -= (float)yDisp / 10.0;
+		objTx += (float)xDisp / 1.0;	//	mm単位
+		objTy -= (float)yDisp / 1.0;
 		break;
 	case GLUT_RIGHT_BUTTON:
 		break;

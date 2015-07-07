@@ -13,7 +13,7 @@
 #define PROJ_WIN_POS_Y	0
 #define PROJ_WIN_WIDTH	1024
 #define PROJ_WIN_HEIGHT	768
-#define PROJ_FOVY_X		21.24
+#define PROJ_FOVY_X		22.0f
 
 //	Projection Window‚Ì‚½‚ß‚Ìƒpƒ‰ƒ[ƒ^
 extern int projButton;
